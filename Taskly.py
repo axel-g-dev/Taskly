@@ -33,11 +33,11 @@ def afficher_moniteur():
             print("      MONITEUR EN TEMPS RÉEL      ")
             print("=" * 40)
             
-            print(f"CPU Utilisation : {cpu_usage}%")
+            print(f"  CPU Utilisation : {cpu_usage}%")
             print(f"[{barre_cpu}]")
             print("-" * 40)
             
-            print(f"RAM Utilisation : {ram_usage}%")
+            print(f". RAM Utilisation : {ram_usage}%")
             print(f"[{barre_ram}]")
             print(f"   Libre : {ram_dispo} Go")
             print("-" * 40)
