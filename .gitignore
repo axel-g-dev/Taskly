@@ -1,0 +1,52 @@
+# --------------------------
+# Python
+# --------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# --------------------------
+# Environnements virtuels
+# --------------------------
+env/
+venv/
+ENV/
+VENV/
+
+# --------------------------
+# Fichiers de configuration et logs
+# --------------------------
+*.log
+*.sqlite3
+*.db
+
+# --------------------------
+# Packages / distributions
+# --------------------------
+*.egg
+*.egg-info/
+dist/
+build/
+*.wheel
+
+# --------------------------
+# macOS
+# --------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon files
+Icon?
+
+# Thumbnails
+._*
+
+# --------------------------
+# IDEs / éditeurs
+# --------------------------
+.vscode/
+.idea/
+*.iml
