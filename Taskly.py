@@ -1,217 +1,301 @@
 import tkinter as tk
 from tkinter import ttk
 import psutil
-import time
 import platform
 import datetime
-from typing import List, Tuple, Dict, Any
+from typing import List, Dict, Any
 
-# --- CONFIGURATION & CONSTANTES ---
-class Config:
-    """Centralise la configuration visuelle et les paramètres."""
-    APP_TITLE = "Taskly Monitor"
-    APP_SIZE = "640x520"
-    REFRESH_RATE_MS = 1000
+# --- 🎨 DESIGN SYSTEM (APPLE DARK MODE) ---
+class Design:
+    # Palette officielle macOS Dark Mode
+    BG_WINDOW = "#1C1C1E"    # Fond global (System Gray 6)
+    BG_CARD = "#2C2C2E"      # Fond des cartes (System Gray 5)
+    TEXT_PRIMARY = "#FFFFFF"
+    TEXT_SECONDARY = "#98989D" # Subtext (System Gray)
     
-    COLOR_BG = "#1e1e1e"
-    COLOR_PANEL = "#252526"
-    COLOR_TEXT = "#e0e0e0"
-    COLOR_ACCENT = "#007acc"
-    COLOR_GRAPH = "#00ffcc"
-
-    FONT_HEADER = ("Helvetica", 10, "bold")
-    FONT_BODY = ("Helvetica", 9)
+    # Couleurs d'accentuation
+    ACCENT_BLUE = "#0A84FF"
+    ACCENT_GREEN = "#30D158"
+    ACCENT_ORANGE = "#FF9F0A"
+    ACCENT_RED = "#FF453A"
+    ACCENT_PURPLE = "#BF5AF2"
+    
+    # Polices (SF Pro simulée)
+    FONT_TITLE = ("Helvetica Neue", 18, "bold")
+    FONT_SUBTITLE = ("Helvetica Neue", 11, "bold")
+    FONT_VALUE = ("Helvetica Neue", 24, "bold")
+    FONT_NORMAL = ("Helvetica Neue", 11)
     FONT_MONO = ("Menlo", 10)
 
-# --- GESTION DES DONNÉES (BACKEND) ---
-class SystemDataManager:
+# --- 🧠 BACKEND (LOGIQUE) ---
+class SystemData:
     def __init__(self):
-        self.last_net_io = psutil.net_io_counters()
-        self.cpu_history: List[float] = [0.0] * 60
+        self.last_net = psutil.net_io_counters()
+        self.cpu_history = [0.0] * 100 # Plus de points pour le grand écran
 
-    def get_basic_stats(self) -> Dict[str, Any]:
+    def get_stats(self):
+        # CPU & RAM
         cpu = psutil.cpu_percent(interval=None)
-        self._update_cpu_history(cpu)
+        ram = psutil.virtual_memory()
         
+        # Réseau
+        net = psutil.net_io_counters()
+        down = (net.bytes_recv - self.last_net.bytes_recv) / 1024
+        up = (net.bytes_sent - self.last_net.bytes_sent) / 1024
+        self.last_net = net
+        
+        # Historique
+        self.cpu_history.pop(0)
+        self.cpu_history.append(cpu)
+        
+        # Batterie
+        bat = psutil.sensors_battery()
+        bat_pct = bat.percent if bat else 0
+        is_plugged = bat.power_plugged if bat else False
+
         return {
             "cpu": cpu,
-            "ram": psutil.virtual_memory().percent,
-            "disk": psutil.disk_usage('/').percent,
-            "battery": psutil.sensors_battery()
+            "ram_pct": ram.percent,
+            "ram_used": round(ram.used / (1024**3), 1),
+            "net_down": down,
+            "net_up": up,
+            "bat_pct": bat_pct,
+            "is_plugged": is_plugged,
+            "history": self.cpu_history
         }
 
-    def _update_cpu_history(self, value: float):
-        self.cpu_history.pop(0)
-        self.cpu_history.append(value)
-
-    def get_network_speed(self) -> Tuple[float, float]:
-        current_net = psutil.net_io_counters()
-        bytes_recv = current_net.bytes_recv - self.last_net_io.bytes_recv
-        bytes_sent = current_net.bytes_sent - self.last_net_io.bytes_sent
-        self.last_net_io = current_net
-        return (bytes_recv / 1024, bytes_sent / 1024)
-
-    def get_top_processes(self, limit: int = 5) -> List[Dict]:
-        """Récupère les processus les plus gourmands en CPU."""
+    def get_procs(self):
         try:
-            # CORRECTION ICI : On gère le cas où cpu_percent est None
+            # Récupère le Top 15 pour les grands écrans
             procs = sorted(
-                psutil.process_iter(['name', 'cpu_percent']),
-                key=lambda p: (p.info['cpu_percent'] or 0.0), # <-- La correction est ici (or 0.0)
+                psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']),
+                key=lambda p: (p.info['cpu_percent'] or 0.0),
                 reverse=True
             )
-            return [p.info for p in procs[:limit]]
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            return procs[:20] 
+        except:
             return []
 
-    @staticmethod
-    def get_system_info() -> str:
-        node = platform.node().split('.')[0]
-        os_ver = platform.mac_ver()[0]
-        boot_time = datetime.datetime.fromtimestamp(psutil.boot_time())
-        uptime = str(datetime.datetime.now() - boot_time).split('.')[0]
-        return f"🖥️ {node}  |  🍏 macOS {os_ver}  |  ⏱️ Uptime: {uptime}"
+# --- 🧩 COMPOSANTS UI (WIDGETS) ---
 
-# --- COMPOSANTS UI (FRONTEND) ---
-class GaugeWidget(tk.Frame):
-    def __init__(self, parent, title: str):
-        super().__init__(parent, bg=Config.COLOR_PANEL)
-        self.pack(fill="x", pady=6)
+class AppleCard(tk.Frame):
+    """Une carte style 'Widget iOS' avec un titre et du contenu."""
+    def __init__(self, parent, title, icon=""):
+        super().__init__(parent, bg=Design.BG_CARD, padx=15, pady=15)
+        self.columnconfigure(0, weight=1)
         
-        header = tk.Frame(self, bg=Config.COLOR_PANEL)
-        header.pack(fill="x")
+        # En-tête de la carte
+        header = tk.Frame(self, bg=Design.BG_CARD)
+        header.grid(row=0, column=0, sticky="ew", pady=(0, 10))
         
-        tk.Label(header, text=title, bg=Config.COLOR_PANEL, fg=Config.COLOR_TEXT, 
-                 font=Config.FONT_BODY).pack(side="left")
-        
-        self.val_label = tk.Label(header, text="0%", bg=Config.COLOR_PANEL, 
-                                  fg=Config.COLOR_ACCENT, font=Config.FONT_HEADER)
-        self.val_label.pack(side="right")
-        
-        self.progress = ttk.Progressbar(self, length=100, mode='determinate', 
-                                        style="Blue.Horizontal.TProgressbar")
-        self.progress.pack(fill="x", pady=(2, 0))
+        tk.Label(header, text=f"{icon}  {title}".upper(), fg=Design.TEXT_SECONDARY, 
+                 bg=Design.BG_CARD, font=Design.FONT_SUBTITLE, anchor="w").pack(side="left")
 
-    def update_value(self, value: float, suffix: str = "%"):
-        self.progress['value'] = value
-        self.val_label.config(text=f"{value:.1f}{suffix}")
+    def add_value_label(self, color=Design.TEXT_PRIMARY):
+        """Ajoute un gros chiffre au milieu."""
+        lbl = tk.Label(self, text="--", font=Design.FONT_VALUE, bg=Design.BG_CARD, fg=color)
+        lbl.grid(row=1, column=0, sticky="w")
+        return lbl
 
-class GraphWidget(tk.Canvas):
-    def __init__(self, parent, height=100):
-        super().__init__(parent, height=height, bg="#111111", highlightthickness=0)
-        self.pack(fill="x", pady=(5, 15))
+    def add_sub_label(self):
+        """Ajoute un petit texte en dessous."""
+        lbl = tk.Label(self, text="--", font=Design.FONT_NORMAL, bg=Design.BG_CARD, fg=Design.TEXT_SECONDARY)
+        lbl.grid(row=2, column=0, sticky="w")
+        return lbl
 
-    def draw_history(self, data: List[float]):
+class ResizableGraph(tk.Canvas):
+    """Un graphique qui s'adapte à la taille de la fenêtre."""
+    def __init__(self, parent):
+        super().__init__(parent, bg=Design.BG_CARD, highlightthickness=0, height=150)
+        self.bind("<Configure>", self.on_resize)
+        self.data = []
+
+    def on_resize(self, event):
+        self.draw() # Redessiner quand la fenêtre change de taille
+
+    def update_data(self, data):
+        self.data = data
+        self.draw()
+
+    def draw(self):
         self.delete("all")
-        width = self.winfo_width()
-        height = self.winfo_height()
-        
-        if width <= 1: return
-        
-        step = width / (len(data) - 1)
+        w = self.winfo_width()
+        h = self.winfo_height()
+        if w < 10 or not self.data: return
+
+        # Création de la ligne
+        step = w / (len(self.data) - 1)
         points = []
         
-        for i, val in enumerate(data):
+        # Fond dégradé (simulé par des lignes verticales pour la performance)
+        for i, val in enumerate(self.data):
             x = i * step
-            y = height - (val / 100 * height)
+            y = h - (val / 100 * h)
             points.extend([x, y])
             
-        if len(points) >= 4:
-            self.create_line(points, fill=Config.COLOR_GRAPH, width=2, smooth=True)
+            # Indicateur visuel si CPU élevé
+            color = Design.ACCENT_GREEN
+            if val > 50: color = Design.ACCENT_ORANGE
+            if val > 80: color = Design.ACCENT_RED
+            
+            # Petite barre verticale style "Audio Visualizer"
+            self.create_line(x, h, x, y, fill=color, width=2, stipple="gray50")
 
-# --- APPLICATION PRINCIPALE ---
-class DashboardApp:
+        # Ligne de courbe lissée au dessus
+        if len(points) >= 4:
+            self.create_line(points, fill="white", width=2, smooth=True)
+
+class ModernProcessTable(ttk.Treeview):
+    """Tableau style Finder."""
+    def __init__(self, parent):
+        columns = ("pid", "nom", "cpu", "ram")
+        super().__init__(parent, columns=columns, show="headings", selectmode="none")
+        
+        # Configuration des colonnes
+        self.heading("pid", text="PID")
+        self.heading("nom", text="NOM")
+        self.heading("cpu", text="CPU %")
+        self.heading("ram", text="RAM %")
+        
+        self.column("pid", width=50, anchor="center")
+        self.column("nom", width=150, anchor="w")
+        self.column("cpu", width=70, anchor="e")
+        self.column("ram", width=70, anchor="e")
+        
+        # Styling via ttk
+        style = ttk.Style()
+        style.theme_use("clam")
+        style.configure("Treeview", 
+                        background=Design.BG_CARD, 
+                        foreground=Design.TEXT_PRIMARY, 
+                        fieldbackground=Design.BG_CARD,
+                        font=Design.FONT_NORMAL,
+                        rowheight=25,
+                        borderwidth=0)
+        style.configure("Treeview.Heading", 
+                        background=Design.BG_WINDOW, 
+                        foreground=Design.TEXT_SECONDARY, 
+                        font=Design.FONT_SUBTITLE,
+                        borderwidth=0)
+        style.map("Treeview", background=[('selected', Design.BG_CARD)]) # Désactiver la sélection bleue moche
+
+# --- 🚀 APPLICATION PRINCIPALE ---
+class TasklyApp:
     def __init__(self, root):
         self.root = root
-        self.data_manager = SystemDataManager()
-        
-        self._setup_window()
-        self._setup_styles()
-        self._build_ui()
-        
+        self.data_manager = SystemData()
+        self.setup_window()
+        self.build_ui()
         self.update_loop()
 
-    def _setup_window(self):
-        self.root.title(Config.APP_TITLE)
-        self.root.geometry(Config.APP_SIZE)
-        self.root.resizable(False, False)
-        self.root.configure(bg=Config.COLOR_BG)
-
-    def _setup_styles(self):
-        style = ttk.Style()
-        style.theme_use('clam')
-        style.configure("Blue.Horizontal.TProgressbar", 
-                        foreground=Config.COLOR_ACCENT, 
-                        background=Config.COLOR_ACCENT, 
-                        troughcolor="#333333", 
-                        borderwidth=0)
-
-    def _build_ui(self):
-        info_frame = tk.Frame(self.root, bg="#333333", height=40)
-        info_frame.pack(fill="x")
-        self.lbl_info = tk.Label(info_frame, text="Loading...", bg="#333333", fg="white", font=Config.FONT_BODY)
-        self.lbl_info.pack(pady=8)
-
-        main_container = tk.Frame(self.root, bg=Config.COLOR_BG)
-        main_container.pack(fill="both", expand=True, padx=15, pady=15)
-
-        # Colonne Gauche
-        left_col = tk.Frame(main_container, bg=Config.COLOR_PANEL, padx=10, pady=10)
-        left_col.pack(side="left", fill="both", expand=True, padx=(0, 8))
+    def setup_window(self):
+        self.root.title("Taskly Pro")
+        self.root.geometry("1000x700") # Taille de départ large
+        self.root.minsize(800, 600)
+        self.root.configure(bg=Design.BG_WINDOW)
         
-        tk.Label(left_col, text="RESSOURCES", bg=Config.COLOR_PANEL, fg="gray", 
-                 font=Config.FONT_HEADER).pack(anchor="w", pady=(0, 5))
-        
-        self.gauge_cpu = GaugeWidget(left_col, "CPU Usage")
-        self.gauge_ram = GaugeWidget(left_col, "RAM Usage")
-        self.gauge_disk = GaugeWidget(left_col, "SSD Disk")
-        self.gauge_bat = GaugeWidget(left_col, "Batterie")
+        # Configuration de la grille responsive
+        # Colonne 0 = 1/3, Colonne 1 = 1/3, Colonne 2 = 1/3
+        self.root.columnconfigure(0, weight=1)
+        self.root.columnconfigure(1, weight=1)
+        self.root.columnconfigure(2, weight=1)
+        # Ligne 1 (stats) fix, Ligne 2 (graph/table) prend le reste
+        self.root.rowconfigure(1, weight=1) 
 
-        # Colonne Droite
-        right_col = tk.Frame(main_container, bg=Config.COLOR_PANEL, padx=10, pady=10)
-        right_col.pack(side="right", fill="both", expand=True, padx=(8, 0))
+    def build_ui(self):
+        # 1. Header
+        header = tk.Frame(self.root, bg=Design.BG_WINDOW)
+        header.grid(row=0, column=0, columnspan=3, sticky="ew", padx=20, pady=20)
         
-        tk.Label(right_col, text="HISTORIQUE CPU", bg=Config.COLOR_PANEL, fg="gray", font=Config.FONT_HEADER).pack(anchor="w")
-        self.graph = GraphWidget(right_col)
+        tk.Label(header, text=f"{platform.node().split('.')[0]}", 
+                 font=Design.FONT_TITLE, fg=Design.TEXT_PRIMARY, bg=Design.BG_WINDOW).pack(side="left")
         
-        tk.Label(right_col, text="TOP PROCESSUS", bg=Config.COLOR_PANEL, fg="gray", font=Config.FONT_HEADER).pack(anchor="w")
-        self.lbl_processes = tk.Label(right_col, text="", bg=Config.COLOR_PANEL, fg="#bbbbbb", font=Config.FONT_MONO, justify="left")
-        self.lbl_processes.pack(anchor="w", pady=5)
+        self.lbl_clock = tk.Label(header, text="--:--", font=Design.FONT_TITLE, 
+                                  fg=Design.TEXT_SECONDARY, bg=Design.BG_WINDOW)
+        self.lbl_clock.pack(side="right")
 
-        # Footer
-        self.status_bar = tk.Label(self.root, text="Ready", bg=Config.COLOR_ACCENT, fg="white", font=Config.FONT_HEADER, pady=5)
-        self.status_bar.pack(fill="x", side="bottom")
+        # 2. Cartes de Stats (Ligne 1)
+        # CPU Card
+        self.card_cpu = AppleCard(self.root, "Processeur", "🧠")
+        self.card_cpu.grid(row=1, column=0, sticky="ew", padx=(20, 10), pady=10)
+        self.lbl_cpu_val = self.card_cpu.add_value_label(Design.ACCENT_BLUE)
+        self.lbl_cpu_sub = self.card_cpu.add_sub_label()
+
+        # RAM Card
+        self.card_ram = AppleCard(self.root, "Mémoire", "💾")
+        self.card_ram.grid(row=1, column=1, sticky="ew", padx=10, pady=10)
+        self.lbl_ram_val = self.card_ram.add_value_label(Design.ACCENT_PURPLE)
+        self.lbl_ram_sub = self.card_ram.add_sub_label()
+
+        # Battery/Net Card
+        self.card_misc = AppleCard(self.root, "Système", "⚡")
+        self.card_misc.grid(row=1, column=2, sticky="ew", padx=(10, 20), pady=10)
+        self.lbl_misc_val = self.card_misc.add_value_label(Design.ACCENT_GREEN)
+        self.lbl_misc_sub = self.card_misc.add_sub_label()
+
+        # 3. Zone Contenu Principal (Ligne 2 - Expandable)
+        # On divise le bas en deux colonnes principales
+        
+        # Container Graphique (Gauche, prend 2/3 de la largeur si possible)
+        graph_container = tk.Frame(self.root, bg=Design.BG_CARD)
+        graph_container.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=(20, 10), pady=(10, 20))
+        
+        tk.Label(graph_container, text="HISTORIQUE D'ACTIVITÉ", font=Design.FONT_SUBTITLE, 
+                 bg=Design.BG_CARD, fg=Design.TEXT_SECONDARY).pack(anchor="w", padx=15, pady=15)
+        
+        self.graph = ResizableGraph(graph_container)
+        self.graph.pack(fill="both", expand=True, padx=10, pady=(0, 10))
+
+        # Container Processus (Droite, prend 1/3)
+        list_container = tk.Frame(self.root, bg=Design.BG_CARD)
+        list_container.grid(row=2, column=2, sticky="nsew", padx=(10, 20), pady=(10, 20))
+        
+        tk.Label(list_container, text="APPS GOURMANDES", font=Design.FONT_SUBTITLE, 
+                 bg=Design.BG_CARD, fg=Design.TEXT_SECONDARY).pack(anchor="w", padx=15, pady=15)
+        
+        self.proc_table = ModernProcessTable(list_container)
+        self.proc_table.pack(fill="both", expand=True, padx=5, pady=5)
 
     def update_loop(self):
-        stats = self.data_manager.get_basic_stats()
-        net_recv, net_sent = self.data_manager.get_network_speed()
-        top_procs = self.data_manager.get_top_processes()
+        # Récupération données
+        data = self.data_manager.get_stats()
+        procs = self.data_manager.get_procs()
         
-        self.lbl_info.config(text=self.data_manager.get_system_info())
-        
-        self.gauge_cpu.update_value(stats['cpu'])
-        self.gauge_ram.update_value(stats['ram'])
-        self.gauge_disk.update_value(stats['disk'])
-        
-        bat = stats['battery']
-        if bat:
-            icon = "⚡" if bat.power_plugged else "🔋"
-            self.gauge_bat.update_value(bat.percent, suffix=f"% {icon}")
+        # Mise à jour Clock
+        self.lbl_clock.config(text=datetime.datetime.now().strftime("%H:%M:%S"))
 
-        self.graph.draw_history(self.data_manager.cpu_history)
+        # Mise à jour Cartes
+        self.lbl_cpu_val.config(text=f"{data['cpu']}%")
+        self.lbl_cpu_sub.config(text="Utilisation Totale")
 
-        # Protection contre les erreurs si 'top_procs' est vide
-        if top_procs:
-            proc_text = "\n".join([f"{(p['cpu_percent'] or 0.0):>5.1f}%  {p['name']}" for p in top_procs])
-        else:
-            proc_text = "Chargement..."
+        self.lbl_ram_val.config(text=f"{data['ram_pct']}%")
+        self.lbl_ram_sub.config(text=f"{data['ram_used']} GB utilisés")
+        
+        plugged_icon = "⚡" if data['is_plugged'] else "🔋"
+        self.lbl_misc_val.config(text=f"{data['bat_pct']}%")
+        self.lbl_misc_sub.config(text=f"{plugged_icon} Batterie | ⬇ {data['net_down']:.1f} KB/s")
+
+        # Mise à jour Graphique
+        self.graph.update_data(data['history'])
+
+        # Mise à jour Table (On efface et on réécrit, méthode simple)
+        for item in self.proc_table.get_children():
+            self.proc_table.delete(item)
             
-        self.lbl_processes.config(text=proc_text)
-        self.status_bar.config(text=f"RÉSEAU: ⬇️ {net_recv:.1f} KB/s   |   ⬆️ {net_sent:.1f} KB/s")
-        
-        self.root.after(Config.REFRESH_RATE_MS, self.update_loop)
+        for p in procs:
+            try:
+                self.proc_table.insert("", "end", values=(
+                    p.info['pid'],
+                    p.info['name'],
+                    f"{p.info['cpu_percent'] or 0.0:.1f}%",
+                    f"{p.info['memory_percent'] or 0.0:.1f}%"
+                ))
+            except: pass
+
+        # Rappel 1000ms
+        self.root.after(1000, self.update_loop)
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = DashboardApp(root)
+    app = TasklyApp(root)
     root.mainloop()
