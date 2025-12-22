@@ -7,15 +7,34 @@
 
 ## Pourquoi Taskly ?
 
-Le **Moniteur d'activité** d'Apple est puissant mais peu intuitif et visuellement désuet. Taskly a été créé pour offrir une alternative moderne avec :
+Le **Moniteur d'activité** d'Apple, bien que fonctionnel, souffre de plusieurs limitations :
+- Interface peu intuitive avec trop d'informations dispersées
+- Design vieillissant qui n'a pas évolué depuis des années
+- Absence de visualisations modernes (graphiques limités)
+- Pas d'alertes configurables
+- Aucune option d'export de données
 
-- **Interface intuitive** : Informations claires et accessibles d'un coup d'œil
-- **Design moderne** : Interface Apple-style avec animations fluides
-- **Visualisations améliorées** : Graphiques en temps réel et cartes métriques colorées
-- **Fonctionnalités avancées** : Alertes configurables, export de données, surveillance de température
-- **Expérience optimisée** : Mise à jour en temps réel sans ralentissement
+**Taskly a été créé pour résoudre ces problèmes** en offrant :
 
-Taskly transforme la surveillance système en une expérience agréable et efficace.
+### Une Interface Moderne et Intuitive
+- **Cartes métriques colorées** : CPU (bleu), RAM (violet), Température (orange), Réseau (vert)
+- **Graphiques en temps réel** : Historique visuel sur 30 secondes pour CPU, RAM et Réseau
+- **Design Apple-style** : Interface sombre élégante avec animations fluides
+- **Informations d'un coup d'œil** : Tout ce dont vous avez besoin sur un seul écran
+
+### Des Fonctionnalités Avancées
+- **Système d'alertes** : Soyez notifié quand CPU > 90%, RAM > 85%, ou Température > 80°C
+- **Export de données** : Sauvegardez vos métriques en JSON ou CSV pour analyse
+- **Surveillance de température** : Support multi-plateforme (Linux natif, macOS via osx-cpu-temp)
+- **Optimisations intelligentes** : Cache et mises à jour conditionnelles pour des performances optimales
+
+### Une Expérience Utilisateur Supérieure
+- **Lancement rapide** : Application macOS native ou script de lancement
+- **Mise à jour fluide** : Rafraîchissement en temps réel sans ralentissement
+- **Architecture modulaire** : Code propre et facilement extensible
+- **Open Source** : Licence MIT, personnalisable à souhait
+
+**Taskly transforme la surveillance système en une expérience agréable, moderne et efficace.**
 
 ### Aperçu
 
@@ -116,10 +135,10 @@ L'application est **prête à l'emploi** après clonage :
 
 ## Documentation
 
-- [README complet](docs/README.md) - Documentation complète
-- [Guide d'installation](docs/INSTALL.md) - Instructions détaillées
-- [Guide du lanceur](docs/LAUNCHER.md) - Options de lancement
-- [Guide de contribution](docs/CONTRIBUTING.md) - Comment contribuer
+- [📖 Documentation complète](docs/DOCUMENTATION.md) - Guide détaillé
+- [⚙️ Guide d'installation](docs/INSTALL.md) - Instructions détaillées
+- [🚀 Guide du lanceur](docs/LAUNCHER.md) - Options de lancement
+- [🤝 Guide de contribution](docs/CONTRIBUTING.md) - Comment contribuer
 
 ## Fonctionnalités
 

@@ -186,7 +186,7 @@ brew uninstall osx-cpu-temp
 
 ## Prochaines Étapes
 
-- Lisez le [README](README.md) pour un aperçu complet des fonctionnalités
+- Lisez la [Documentation complète](DOCUMENTATION.md) pour un aperçu complet des fonctionnalités
 - Consultez [CONTRIBUTING.md](CONTRIBUTING.md) pour contribuer au projet
 - Signalez les problèmes sur [GitHub Issues](https://github.com/axel-g-dev/Taskly/issues)
 
