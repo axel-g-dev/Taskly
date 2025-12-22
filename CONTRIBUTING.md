@@ -1,42 +1,42 @@
-# Contributing to Taskly
+# Guide de Contribution - Taskly
 
-First off, thank you for considering contributing to Taskly! It's people like you that make Taskly such a great tool.
+Merci de vouloir contribuer à Taskly ! Ce document explique comment participer au développement du projet.
 
-## Code of Conduct
+## Code de Conduite
 
-This project and everyone participating in it is governed by respect and professionalism. By participating, you are expected to uphold this standard.
+Ce projet respecte les principes de respect et de professionnalisme. En participant, vous vous engagez à maintenir ces standards.
 
-## How Can I Contribute?
+## Comment Contribuer
 
-### Reporting Bugs
+### Signaler des Bugs
 
-Before creating bug reports, please check the existing issues to avoid duplicates. When you create a bug report, include as many details as possible:
+Avant de créer un rapport de bug, vérifiez que le problème n'a pas déjà été signalé. Quand vous créez un rapport de bug, incluez le maximum de détails :
 
-- **Use a clear and descriptive title**
-- **Describe the exact steps to reproduce the problem**
-- **Provide specific examples**
-- **Describe the behavior you observed and what you expected**
-- **Include screenshots if relevant**
-- **Include your environment details** (OS, Python version, Flet version)
+- **Titre clair et descriptif**
+- **Étapes pour reproduire le problème**
+- **Exemples concrets**
+- **Comportement observé vs comportement attendu**
+- **Captures d'écran si pertinent**
+- **Détails de votre environnement** (OS, version Python, version Flet)
 
-### Suggesting Enhancements
+### Suggérer des Améliorations
 
-Enhancement suggestions are tracked as GitHub issues. When creating an enhancement suggestion, include:
+Les suggestions d'amélioration sont suivies via les GitHub Issues. Quand vous créez une suggestion, incluez :
 
-- **Use a clear and descriptive title**
-- **Provide a detailed description of the suggested enhancement**
-- **Explain why this enhancement would be useful**
-- **List any similar features in other applications**
+- **Titre clair et descriptif**
+- **Description détaillée de l'amélioration suggérée**
+- **Explication de pourquoi cette amélioration serait utile**
+- **Liste de fonctionnalités similaires dans d'autres applications**
 
 ### Pull Requests
 
-1. Fork the repo and create your branch from `main`
-2. If you've added code, add tests if applicable
-3. Ensure your code follows the existing style
-4. Update the documentation if needed
-5. Write a clear commit message
+1. Forkez le dépôt et créez votre branche depuis `main`
+2. Si vous ajoutez du code, ajoutez des tests si applicable
+3. Assurez-vous que votre code suit le style existant
+4. Mettez à jour la documentation si nécessaire
+5. Écrivez un message de commit clair
 
-## Development Setup
+## Configuration pour le Développement
 
 ```bash
 git clone https://github.com/axel-g-dev/Taskly.git
@@ -46,44 +46,44 @@ source env/bin/activate
 pip install -r requirements.txt
 ```
 
-## Style Guidelines
+## Directives de Style
 
-### Python Code Style
+### Code Python
 
-- Follow PEP 8 guidelines
-- Use meaningful variable and function names
-- Add docstrings to functions and classes
-- Keep functions focused and concise
-- Use type hints where appropriate
+- Suivez les directives PEP 8
+- Utilisez des noms de variables et fonctions significatifs
+- Ajoutez des docstrings aux fonctions et classes
+- Gardez les fonctions courtes et focalisées
+- Utilisez les type hints quand c'est approprié
 
-### Commit Messages
+### Messages de Commit
 
-- Use the present tense ("Add feature" not "Added feature")
-- Use the imperative mood ("Move cursor to..." not "Moves cursor to...")
-- Limit the first line to 72 characters or less
-- Reference issues and pull requests when relevant
+- Utilisez le présent ("Ajoute fonctionnalité" et non "Ajouté fonctionnalité")
+- Utilisez l'impératif ("Déplace curseur vers..." et non "Déplace le curseur vers...")
+- Limitez la première ligne à 72 caractères maximum
+- Référencez les issues et pull requests quand pertinent
 
-Example:
+Exemple :
 ```
-Add temperature monitoring feature
+Ajoute surveillance de température
 
-- Created TemperatureCard component
-- Enhanced data_manager with temperature collection
-- Added color-coded temperature display
-- Closes #123
+- Création du composant TemperatureCard
+- Amélioration de data_manager avec collecte température
+- Ajout affichage température avec code couleur
+- Ferme #123
 ```
 
-## Project Structure
+## Structure du Projet
 
 ```
 Taskly/
-├── main.py              # Entry point
-├── dashboard.py         # Main UI
-├── data_manager.py      # Data collection
-├── data_exporter.py     # Export functionality
+├── main.py              # Point d'entrée
+├── dashboard.py         # Interface principale
+├── data_manager.py      # Collecte de données
+├── data_exporter.py     # Fonctionnalité d'export
 ├── config.py            # Configuration
-├── utils.py             # Utilities
-└── components/          # UI components
+├── utils.py             # Utilitaires
+└── components/          # Composants UI
     ├── metric_card.py
     ├── temperature_card.py
     ├── charts.py
@@ -92,17 +92,17 @@ Taskly/
     └── alert_manager.py
 ```
 
-## Testing
+## Tests
 
-Before submitting a pull request:
+Avant de soumettre une pull request :
 
-1. Test your changes thoroughly
-2. Ensure the application runs without errors
-3. Test on different platforms if possible (macOS, Linux, Windows)
-4. Verify that existing features still work
+1. Testez vos changements de manière approfondie
+2. Assurez-vous que l'application démarre sans erreurs
+3. Testez sur différentes plateformes si possible (macOS, Linux, Windows)
+4. Vérifiez que les fonctionnalités existantes fonctionnent toujours
 
-## Questions?
+## Questions
 
-Feel free to open an issue with your question or reach out to the maintainers.
+N'hésitez pas à ouvrir une issue avec votre question ou à contacter les mainteneurs.
 
-Thank you for contributing! 🎉
+Merci de contribuer !
