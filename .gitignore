@@ -60,3 +60,6 @@ exports/
 # Fichiers temporaires Flet
 .flet/
 *.session
+
+# Fichiers archivés
+archive_*.py

@@ -1,245 +1,231 @@
-# Taskly - System Monitor 🖥️
+# Taskly 🖥️
 
 <div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
-![Flet](https://img.shields.io/badge/Flet-0.28+-purple.svg)
-![License](https://img.shields.io/badge/License-MIT-green.svg)
+![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Flet](https://img.shields.io/badge/Flet-0.28+-5C2D91?style=for-the-badge&logo=flutter&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey?style=for-the-badge)
 
-Un moniteur système moderne et élégant avec interface Apple-style, développé en Python avec Flet.
+**A modern, elegant system monitor with Apple-style UI built with Python and Flet**
 
-[Fonctionnalités](#-fonctionnalités) • [Installation](#-installation) • [Utilisation](#-utilisation) • [Architecture](#-architecture) • [Configuration](#-configuration)
+[Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Screenshots](#-screenshots) • [Contributing](#-contributing)
+
+<img src="https://img.shields.io/github/stars/axel-g-dev/Taskly?style=social" alt="GitHub stars">
+<img src="https://img.shields.io/github/forks/axel-g-dev/Taskly?style=social" alt="GitHub forks">
 
 </div>
 
 ---
 
-## ✨ Fonctionnalités
+## ✨ Features
 
-### 📊 Monitoring en Temps Réel
-- **CPU** : Utilisation normalisée (0-100%), nombre de cœurs, fréquence
-- **RAM** : Pourcentage d'utilisation, mémoire utilisée/totale
-- **Température** : Monitoring CPU avec code couleur (vert/orange/rouge)
-- **Réseau** : Vitesses upload/download en temps réel
-- **Batterie** : Niveau, état de charge, temps restant
-- **Disque** : Utilisation de l'espace disque
+### 📊 Real-Time Monitoring
+- **CPU** - Usage percentage (0-100%), core count, frequency
+- **RAM** - Memory usage with used/total display
+- **Temperature** - CPU temperature with color-coded indicators (green/orange/red)
+- **Network** - Real-time upload/download speeds
+- **Battery** - Level, charging status, time remaining
+- **Disk** - Storage usage and capacity
 
-### 📈 Visualisations
-- **3 graphiques historiques** : CPU, RAM, Réseau (30 secondes)
-- **Graphique réseau dual** : Upload (cyan) + Download (vert)
-- **Cartes métriques** : Affichage coloré avec barres de progression
-- **Liste de processus** : Top 7 processus par CPU ou RAM
+### 📈 Data Visualization
+- **3 Historical Charts** - CPU, RAM, and Network (30-second history)
+- **Dual Network Chart** - Separate upload (cyan) and download (green) lines
+- **Metric Cards** - Color-coded cards with progress bars
+- **Process List** - Top 7 processes by CPU or RAM usage
 
-### 🔔 Système d'Alertes
-- **Seuils configurables** : CPU (90%), RAM (85%), Température (80°C)
-- **Niveaux d'alerte** : Warning et Critical
-- **Cooldown intelligent** : 30 secondes entre alertes similaires
-- **Panneau visuel** : Affichage avec icônes et timestamps
+### 🔔 Smart Alerts
+- **Configurable Thresholds** - CPU (90%), RAM (85%), Temperature (80°C)
+- **Alert Levels** - Warning and Critical states
+- **Cooldown System** - 30-second cooldown between similar alerts
+- **Visual Panel** - Color-coded alerts with timestamps
 
-### 💾 Export de Données
-- **Format JSON** : Structure complète avec historiques
-- **Format CSV** : Tableau lisible pour Excel/Google Sheets
-- **Export automatique** : Sauvegarde dans `./exports/`
-- **Timestamps** : Nommage automatique des fichiers
+### 💾 Data Export
+- **JSON Format** - Complete structured data with history arrays
+- **CSV Format** - Human-readable tables for Excel/Google Sheets
+- **Auto-Save** - Files saved to `./exports/` with timestamps
+- **Comprehensive** - All metrics, history, and system info included
 
-### ⚡ Optimisations
-- **Cache intelligent** : Disque et batterie mis à jour toutes les 5s
-- **Historique optimisé** : 30 points au lieu de 60 (-50% mémoire)
-- **Updates conditionnels** : UI mise à jour uniquement si changement > 0.5%
-- **Code modulaire** : Architecture en composants réutilisables
+### ⚡ Performance Optimizations
+- **Smart Caching** - Disk and battery updated every 5s instead of 1s
+- **Optimized History** - 30 data points instead of 60 (-50% memory)
+- **Conditional Updates** - UI updates only when values change >0.5%
+- **Modular Architecture** - Clean, reusable component structure
 
 ---
 
 ## 🚀 Installation
 
-### Prérequis
-- Python 3.8 ou supérieur
-- pip (gestionnaire de paquets Python)
+### Prerequisites
+- Python 3.8 or higher
+- pip (Python package manager)
 
-### Installation rapide
+### Quick Start
 
 ```bash
-# Cloner le projet
-cd /Users/axel/Desktop/Taskly
+# Clone the repository
+git clone https://github.com/axel-g-dev/Taskly.git
+cd Taskly
 
-# Créer un environnement virtuel
+# Create virtual environment
 python3 -m venv env
 
-# Activer l'environnement virtuel
+# Activate virtual environment
 source env/bin/activate  # macOS/Linux
-# ou
+# or
 env\Scripts\activate  # Windows
 
-# Installer les dépendances
+# Install dependencies
 pip install flet psutil
 ```
 
 ---
 
-## 🎮 Utilisation
+## 🎮 Usage
 
-### Lancement de l'application
+### Running the Application
 
 ```bash
-# Activer l'environnement virtuel
+# Activate virtual environment
 source env/bin/activate
 
-# Lancer Taskly
+# Launch Taskly
 python main.py
 ```
 
-### Interface Utilisateur
+> **⚠️ Important:** Only run the application **once**. Each execution opens a new Flet window.
 
-**Boutons d'en-tête** :
-- 🕐 **Horloge** : Heure actuelle en temps réel
-- 📥 **Export** : Exporter les données (JSON + CSV)
-- 🔔 **Alertes** : Afficher/masquer le panneau d'alertes
-- ℹ️ **Info** : Afficher/masquer les informations système détaillées
+### Interface Overview
 
-**Cartes métriques** :
-- **CPU** : Bleu - Utilisation processeur normalisée
-- **RAM** : Violet - Utilisation mémoire
-- **Température** : Orange - Température CPU (si disponible)
-- **Réseau** : Vert - Vitesse de téléchargement
+**Header Buttons:**
+- 🕐 **Clock** - Real-time clock
+- 📥 **Export** - Export data to JSON + CSV
+- 🔔 **Alerts** - Toggle alert panel
+- ℹ️ **Info** - Toggle detailed system information
 
-**Graphiques** :
-- **CPU History** : Historique d'utilisation CPU (30s)
-- **Memory History** : Historique d'utilisation RAM (30s)
-- **Network History** : Upload + Download (30s)
+**Metric Cards (Top Row):**
+- **CPU** (Blue) - Processor usage 0-100%
+- **RAM** (Purple) - Memory usage
+- **Temperature** (Orange) - CPU temperature (if available)
+- **Network** (Green) - Download speed
 
-**Liste de processus** :
-- Tri par CPU ou RAM
-- Top 7 processus les plus gourmands
-- Mise à jour en temps réel
+**Charts (Middle Row):**
+- **CPU History** - 30-second CPU usage history
+- **Memory History** - 30-second RAM usage history
+- **Network History** - Upload + Download speeds
+
+**Process List (Bottom):**
+- Sort by CPU or RAM
+- Shows top 7 most resource-intensive processes
+- Real-time updates
 
 ---
 
-## 🏗️ Architecture
+## 📸 Screenshots
 
-### Structure du Projet
+<div align="center">
+
+### Main Dashboard
+![Main Dashboard](https://via.placeholder.com/800x500?text=Main+Dashboard+Screenshot)
+
+### Alert System
+![Alert System](https://via.placeholder.com/800x500?text=Alert+System+Screenshot)
+
+### System Info Panel
+![System Info](https://via.placeholder.com/800x500?text=System+Info+Screenshot)
+
+</div>
+
+---
+
+## 🏗️ Project Structure
 
 ```
 Taskly/
-├── main.py                      # Point d'entrée
-├── dashboard.py                 # Interface principale
-├── data_manager.py              # Collecte des métriques
-├── data_exporter.py             # Export JSON/CSV
-├── config.py                    # Configuration et thème
-├── utils.py                     # Fonctions utilitaires
-├── components/                  # Composants UI
+├── main.py                      # Entry point
+├── dashboard.py                 # Main UI interface
+├── data_manager.py              # System metrics collection
+├── data_exporter.py             # JSON/CSV export
+├── config.py                    # Configuration & theme
+├── utils.py                     # Utility functions
+├── components/                  # UI Components
 │   ├── __init__.py
-│   ├── metric_card.py          # Cartes métriques
-│   ├── temperature_card.py     # Carte température
-│   ├── charts.py               # Graphiques (CPU/RAM/Net)
-│   ├── process_list.py         # Liste de processus
-│   ├── system_info.py          # Panneau d'infos
-│   └── alert_manager.py        # Système d'alertes
-├── exports/                     # Données exportées (gitignored)
-├── env/                         # Environnement virtuel (gitignored)
-└── README.md                    # Documentation
+│   ├── metric_card.py          # Metric display cards
+│   ├── temperature_card.py     # Temperature card
+│   ├── charts.py               # CPU/RAM/Network charts
+│   ├── process_list.py         # Process table
+│   ├── system_info.py          # System info panel
+│   └── alert_manager.py        # Alert system
+├── exports/                     # Exported data (gitignored)
+├── env/                         # Virtual environment (gitignored)
+├── .gitignore                   # Git ignore rules
+└── README.md                    # This file
 ```
-
-### Composants Principaux
-
-**DashboardUI** (`dashboard.py`)
-- Gère l'interface principale
-- Coordonne les mises à jour
-- Thread de monitoring en arrière-plan
-
-**SystemDataManager** (`data_manager.py`)
-- Collecte les métriques système via `psutil`
-- Cache intelligent pour optimiser les performances
-- Historique des données (30 points par métrique)
-
-**DataExporter** (`data_exporter.py`)
-- Export JSON structuré
-- Export CSV tabulaire
-- Gestion du répertoire d'export
-
-**AlertManager** (`components/alert_manager.py`)
-- Surveillance des seuils critiques
-- Gestion des alertes avec cooldown
-- Panneau d'affichage visuel
 
 ---
 
 ## ⚙️ Configuration
 
-### Seuils d'Alerte
+### Alert Thresholds
 
-Modifiez `config.py` pour ajuster les seuils :
+Edit `config.py` to customize alert thresholds:
 
 ```python
 ALERT_THRESHOLDS = {
-    'cpu': 90,      # Alerte si CPU > 90%
-    'ram': 85,      # Alerte si RAM > 85%
-    'temp': 80,     # Alerte si Temp > 80°C
+    'cpu': 90,      # Alert if CPU > 90%
+    'ram': 85,      # Alert if RAM > 85%
+    'temp': 80,     # Alert if Temp > 80°C
 }
 ```
 
-### Paramètres de Performance
+### Performance Settings
 
 ```python
-UPDATE_INTERVAL = 1.0       # Intervalle de mise à jour (secondes)
-HISTORY_SIZE = 30           # Nombre de points d'historique
-CACHE_INTERVAL = 5          # Intervalle de cache disque/batterie (secondes)
+UPDATE_INTERVAL = 1.0       # Update interval (seconds)
+HISTORY_SIZE = 30           # Number of history data points
+CACHE_INTERVAL = 5          # Disk/battery cache interval (seconds)
 ```
 
-### Thème
-
-Le thème Apple-style est défini dans `config.py` :
+### Debug Logging
 
 ```python
-class AppleTheme:
-    # Couleurs système
-    BG_COLOR = "#1C1C1E"
-    CARD_COLOR = "#2C2C2E"
-    
-    # Accents
-    BLUE = "#0A84FF"
-    GREEN = "#30D158"
-    ORANGE = "#FF9F0A"
-    RED = "#FF453A"
-    PURPLE = "#BF5AF2"
-    # ...
+DEBUG = True     # Enable debug logs
+VERBOSE = False  # Enable verbose logs (recommended: False in production)
 ```
 
 ---
 
-## 🔧 Détails Techniques
+## 🔧 Technical Details
 
-### Normalisation CPU
+### CPU Normalization
 
-Le CPU est normalisé pour afficher 0-100% même sur systèmes multi-cœurs :
+CPU usage is displayed as 0-100% for intuitive reading:
 
 ```python
-# psutil peut retourner > 100% sur multi-core
-cpu_pct_raw = psutil.cpu_percent()
-cpu_pct = min(cpu_pct_raw / cpu_count_logical * 100, 100)
+# psutil returns average across all cores
+cpu_pct = psutil.cpu_percent()  # Already normalized 0-100%
 ```
 
-**Pourquoi ?** Sur un système 4-cœurs, un processus utilisant 100% d'un cœur apparaîtrait comme 25% dans psutil. La normalisation permet une lecture plus intuitive.
+### Memory Optimizations
 
-### Optimisations Mémoire
+- **Reduced history**: 30 points instead of 60 (-50% memory)
+- **Disk/battery caching**: Updated every 5s instead of 1s
+- **Conditional UI updates**: Only update if change > 0.5%
 
-- **Historique réduit** : 30 points au lieu de 60 (-50% mémoire)
-- **Cache disque/batterie** : Mis à jour toutes les 5s au lieu de 1s
-- **Updates conditionnels** : UI mise à jour uniquement si Δ > 0.5%
+### Temperature Compatibility
 
-### Compatibilité Température
+Temperature monitoring availability varies by platform:
+- ✅ **Linux**: Generally supported (coretemp, k10temp)
+- ⚠️ **macOS**: Not supported by psutil
+- ✅ **Windows**: Variable support depending on hardware
 
-La température CPU n'est pas disponible sur tous les systèmes :
-- ✅ **Linux** : Généralement supporté (coretemp, k10temp)
-- ⚠️ **macOS** : Non supporté par psutil
-- ✅ **Windows** : Support variable selon le matériel
-
-L'application gère gracieusement l'absence de capteurs.
+The application gracefully handles missing temperature sensors.
 
 ---
 
-## 📊 Export de Données
+## 📊 Data Export
 
-### Format JSON
+### JSON Format
 
 ```json
 {
@@ -258,7 +244,7 @@ L'application gère gracieusement l'absence de capteurs.
 }
 ```
 
-### Format CSV
+### CSV Format
 
 ```csv
 Timestamp,2025-12-22T15:03:44
@@ -275,88 +261,90 @@ Usage %,Used GB,Total GB,Available GB
 
 ---
 
-## 🐛 Dépannage
+## 🐛 Troubleshooting
 
-### L'application ne démarre pas
+### Application Won't Start
 
 ```bash
-# Vérifier que l'environnement virtuel est activé
+# Ensure virtual environment is activated
 source env/bin/activate
 
-# Réinstaller les dépendances
+# Reinstall dependencies
 pip install --upgrade flet psutil
 ```
 
-### Température non disponible
+### Temperature Shows "--"
 
-C'est normal sur macOS. La carte affichera "--" au lieu d'une température.
+This is normal on macOS. Temperature sensors are not available via psutil on macOS.
 
-### CPU > 100%
+### Multiple Flet Windows Open
 
-Si vous voyez encore des valeurs > 100%, vérifiez que vous utilisez la dernière version du code avec la normalisation CPU.
+1. Close all windows
+2. Press `Ctrl+C` in all terminals
+3. Relaunch **once**: `python main.py`
 
 ---
 
-## 📝 Logs et Debug
+## 🤝 Contributing
 
-### Activer les logs détaillés
+Contributions are welcome! Here's how you can help:
 
-Dans `config.py` :
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-```python
-DEBUG = True    # Logs de debug
-VERBOSE = True  # Logs très détaillés
+### Development Setup
+
+```bash
+git clone https://github.com/axel-g-dev/Taskly.git
+cd Taskly
+python3 -m venv env
+source env/bin/activate
+pip install flet psutil
 ```
 
-Les logs apparaissent dans la console :
+---
 
-```
-[15:03:44.353] [INFO] TASKLY - SYSTEM MONITOR STARTING
-[15:03:44.353] [VERBOSE] Fetching system metrics...
-[15:03:44.353] [VERBOSE] CPU: 75.8% (raw: 151.6%)
-```
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🤝 Contribution
+## 🙏 Acknowledgments
 
-Les contributions sont les bienvenues ! Pour contribuer :
-
-1. Forkez le projet
-2. Créez une branche (`git checkout -b feature/AmazingFeature`)
-3. Committez vos changements (`git commit -m 'Add AmazingFeature'`)
-4. Pushez vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrez une Pull Request
-
----
-
-## 📜 Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
-
----
-
-## 🙏 Remerciements
-
-- **Flet** : Framework UI moderne pour Python
-- **psutil** : Bibliothèque de monitoring système
-- **Apple** : Inspiration pour le design
+- **[Flet](https://flet.dev/)** - Modern UI framework for Python
+- **[psutil](https://github.com/giampaolo/psutil)** - Cross-platform system monitoring library
+- **Apple** - Design inspiration
 
 ---
 
 ## 📞 Support
 
-Pour toute question ou problème :
-- Ouvrez une issue sur GitHub
-- Consultez la documentation dans `/docs`
-- Vérifiez les logs avec `DEBUG=True`
+- 🐛 **Issues**: [GitHub Issues](https://github.com/axel-g-dev/Taskly/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/axel-g-dev/Taskly/discussions)
+- 📧 **Email**: [Contact](mailto:your-email@example.com)
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] Multi-language support (French, Spanish, German)
+- [ ] Custom themes and color schemes
+- [ ] Process termination capability
+- [ ] Historical data persistence
+- [ ] System tray integration
+- [ ] Web dashboard version
+- [ ] Docker container support
 
 ---
 
 <div align="center">
 
-**Fait avec ❤️ et Python**
+**Made with ❤️ and Python**
 
-[⬆ Retour en haut](#taskly---system-monitor-)
+[⬆ Back to top](#taskly-)
 
 </div>
