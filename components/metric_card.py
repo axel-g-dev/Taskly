@@ -16,6 +16,11 @@ class MetricCard(ft.Container):
         self.value_suffix = value_suffix
         self.is_hovered = False
         
+        # Cache for optimization
+        self.cached_main_val = None
+        self.cached_sub_val = None
+        self.cached_progress = None
+        
         # Controls
         self.value_text = ft.Text("0", size=24, weight="bold", color=AppleTheme.TEXT_WHITE)
         self.sub_text = ft.Text("", size=12, color=AppleTheme.TEXT_GREY)
@@ -74,14 +79,36 @@ class MetricCard(ft.Container):
         self.update()
 
     def update_data(self, main_val, sub_val, progress_val):
-        verbose_log(f"Updating card: {main_val}{self.value_suffix}, {sub_val}, progress={progress_val}")
-        self.value_text.value = f"{main_val}{self.value_suffix}"
-        self.sub_text.value = sub_val
+        """Met à jour les données avec cache pour éviter les updates inutiles."""
+        # Check if values have changed significantly
+        main_str = f"{main_val}{self.value_suffix}"
+        
+        needs_update = False
+        if self.cached_main_val != main_str:
+            self.value_text.value = main_str
+            self.cached_main_val = main_str
+            needs_update = True
+        
+        if self.cached_sub_val != sub_val:
+            self.sub_text.value = sub_val
+            self.cached_sub_val = sub_val
+            needs_update = True
+        
         safe_progress = 0.0
         try:
             safe_progress = float(progress_val)
         except Exception as e:
             debug_log(f"Error converting progress value: {e}", "ERROR")
             safe_progress = 0.0
-        self.progress_bar.value = min(max(safe_progress, 0), 1)
-        self.update()
+        
+        safe_progress = min(max(safe_progress, 0), 1)
+        
+        # Only update if progress changed by more than 0.5%
+        if self.cached_progress is None or abs(safe_progress - self.cached_progress) > 0.005:
+            self.progress_bar.value = safe_progress
+            self.cached_progress = safe_progress
+            needs_update = True
+        
+        if needs_update:
+            verbose_log(f"Updating card: {main_str}, {sub_val}, progress={safe_progress:.2f}")
+            self.update()

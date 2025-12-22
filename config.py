@@ -35,3 +35,21 @@ class AppleTheme:
     # Styling
     BORDER_RADIUS = 18
     PADDING = 20
+
+
+# ==========================================
+# ALERT THRESHOLDS
+# ==========================================
+ALERT_THRESHOLDS = {
+    'cpu': 90,      # Alert if CPU > 90%
+    'ram': 85,      # Alert if RAM > 85%
+    'temp': 80,     # Alert if Temp > 80°C
+}
+
+
+# ==========================================
+# PERFORMANCE SETTINGS
+# ==========================================
+UPDATE_INTERVAL = 1.0       # seconds between updates
+HISTORY_SIZE = 30           # number of data points to keep
+CACHE_INTERVAL = 5          # seconds between disk/battery cache updates

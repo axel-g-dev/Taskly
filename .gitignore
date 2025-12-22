@@ -50,3 +50,13 @@ Icon?
 .vscode/
 .idea/
 *.iml
+
+# --------------------------
+# Taskly spécifique
+# --------------------------
+# Dossier d'export de données
+exports/
+
+# Fichiers temporaires Flet
+.flet/
+*.session
