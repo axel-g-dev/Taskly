@@ -76,8 +76,22 @@ source env/bin/activate  # macOS/Linux
 env\Scripts\activate  # Windows
 
 # Install dependencies
-pip install flet psutil
+pip install -r requirements.txt
 ```
+
+### macOS Temperature Monitoring (Optional)
+
+To enable CPU temperature monitoring on macOS, install `osx-cpu-temp`:
+
+```bash
+# Install via Homebrew
+brew install osx-cpu-temp
+
+# Verify installation
+osx-cpu-temp
+```
+
+> **Note**: Temperature monitoring works out-of-the-box on Linux. On macOS, it requires `osx-cpu-temp`. On Windows, support varies by hardware.
 
 ---
 
@@ -215,11 +229,16 @@ cpu_pct = psutil.cpu_percent()  # Already normalized 0-100%
 ### Temperature Compatibility
 
 Temperature monitoring availability varies by platform:
-- ✅ **Linux**: Generally supported (coretemp, k10temp)
-- ⚠️ **macOS**: Not supported by psutil
-- ✅ **Windows**: Variable support depending on hardware
+- ✅ **Linux**: Fully supported (coretemp, k10temp, cpu_thermal)
+- ✅ **macOS**: Supported via `osx-cpu-temp` (requires installation)
+- ⚠️ **Windows**: Variable support depending on hardware
 
-The application gracefully handles missing temperature sensors.
+**macOS Setup**:
+```bash
+brew install osx-cpu-temp
+```
+
+The application automatically detects available temperature sensors and adapts the UI accordingly. If no sensors are available, the temperature card is hidden.
 
 ---
 

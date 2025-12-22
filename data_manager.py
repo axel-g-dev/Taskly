@@ -5,6 +5,7 @@ import psutil
 import time
 from collections import deque
 from utils import debug_log, verbose_log
+from temperature_sensor import TemperatureSensor
 
 
 class SystemDataManager:
@@ -27,6 +28,17 @@ class SystemDataManager:
         self.cached_disk_info = None
         self.last_battery_check = 0
         self.cached_battery_info = None
+        
+        # Initialize temperature sensor (multi-platform)
+        self.temp_sensor = TemperatureSensor()
+        self.temp_available = self.temp_sensor.is_available()
+        
+        if self.temp_available:
+            sensor_info = self.temp_sensor.get_sensor_info()
+            debug_log(f"Temperature monitoring enabled: {sensor_info['sensor_type']} on {sensor_info['platform']}")
+        else:
+            debug_log("Temperature sensors not available on this platform", "WARNING")
+        
         debug_log("SystemDataManager initialized successfully")
 
     def get_metrics(self):
@@ -108,34 +120,10 @@ class SystemDataManager:
             # 6. System uptime
             uptime_seconds = time.time() - self.boot_time
             
-            # 7. Temperature (improved detection)
+            # 7. Temperature (multi-platform support)
             cpu_temp = None
-            try:
-                temps = psutil.sensors_temperatures()
-                if temps:
-                    # Priority order: coretemp (Linux), k10temp (AMD), CPU Thermal (macOS)
-                    priority_sensors = ['coretemp', 'k10temp', 'cpu_thermal', 'cpu-thermal']
-                    
-                    # Try priority sensors first
-                    for sensor_name in priority_sensors:
-                        if sensor_name in temps and temps[sensor_name]:
-                            cpu_temp = temps[sensor_name][0].current
-                            verbose_log(f"CPU Temp ({sensor_name}): {cpu_temp:.0f}°C")
-                            break
-                    
-                    # Fallback: use first available sensor
-                    if cpu_temp is None:
-                        for name, entries in temps.items():
-                            if entries and entries[0].current > 0:
-                                cpu_temp = entries[0].current
-                                verbose_log(f"CPU Temp ({name}): {cpu_temp:.0f}°C")
-                                break
-            except (AttributeError, OSError) as e:
-                debug_log(f"Temperature sensors not available: {e}", "WARNING")
-                cpu_temp = None
-            except Exception as e:
-                debug_log(f"Could not read temperature: {e}", "WARNING")
-                cpu_temp = None
+            if self.temp_available:
+                cpu_temp = self.temp_sensor.get_temperature()
             
             # Add to temperature history
             self.temp_history.append(cpu_temp if cpu_temp else 0)

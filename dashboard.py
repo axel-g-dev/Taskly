@@ -154,11 +154,23 @@ class DashboardUI:
         debug_log("Creating metric cards...")
         self.cpu_card = MetricCard("CPU Usage", ft.Icons.MEMORY, AppleTheme.BLUE, "%")
         self.ram_card = MetricCard("Memory", ft.Icons.SD_STORAGE, AppleTheme.PURPLE, "%")
-        self.temp_card = TemperatureCard("Temperature", ft.Icons.THERMOSTAT)
         self.net_card = MetricCard("Network", ft.Icons.WIFI, AppleTheme.GREEN, " KB/s")
+        
+        # Only create temperature card if sensors are available
+        metric_cards = [self.cpu_card, self.ram_card]
+        
+        if self.data_manager.temp_available:
+            self.temp_card = TemperatureCard("Temperature", ft.Icons.THERMOSTAT)
+            metric_cards.append(self.temp_card)
+            debug_log("Temperature card added (sensors available)")
+        else:
+            self.temp_card = None
+            debug_log("Temperature card skipped (sensors not available)")
+        
+        metric_cards.append(self.net_card)
 
         top_row = ft.Row(
-            controls=[self.cpu_card, self.ram_card, self.temp_card, self.net_card],
+            controls=metric_cards,
             spacing=20,
         )
         debug_log("Metric cards created")
@@ -245,7 +257,9 @@ class DashboardUI:
                     metrics['ram_percent'] / 100
                 )
                 
-                self.temp_card.update_data(metrics['cpu_temp'])
+                # Only update temperature card if it exists
+                if self.temp_card is not None:
+                    self.temp_card.update_data(metrics['cpu_temp'])
                 
                 total_speed = metrics['net_down'] + metrics['net_up']
                 max_ref_speed = 5000
