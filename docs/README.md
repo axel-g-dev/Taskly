@@ -113,10 +113,10 @@ Voir [LAUNCHER.md](LAUNCHER.md) pour plus d'options de lancement.
 source env/bin/activate
 
 # Lancer Taskly
-python main.py
+python src/main.py
 ```
 
-**Important** : Ne lancez l'application qu'une seule fois. Chaque exécution de `python main.py` ouvre une nouvelle fenêtre.
+**Important** : Ne lancez l'application qu'une seule fois. Chaque exécution de `python src/main.py` ouvre une nouvelle fenêtre.
 
 ### Interface utilisateur
 
@@ -148,23 +148,30 @@ python main.py
 
 ```
 Taskly/
-├── main.py                      # Point d'entrée
-├── dashboard.py                 # Interface principale
-├── data_manager.py              # Collecte des métriques
-├── data_exporter.py             # Export JSON/CSV
-├── temperature_sensor.py        # Capteurs de température
-├── config.py                    # Configuration et thème
-├── utils.py                     # Fonctions utilitaires
-├── components/                  # Composants UI
-│   ├── metric_card.py          # Cartes métriques
-│   ├── temperature_card.py     # Carte température
-│   ├── charts.py               # Graphiques
-│   ├── process_list.py         # Liste de processus
-│   ├── system_info.py          # Panneau d'infos
-│   └── alert_manager.py        # Système d'alertes
+├── src/                         # Code source
+│   ├── main.py                 # Point d'entrée
+│   ├── dashboard.py            # Interface principale
+│   ├── data_manager.py         # Collecte des métriques
+│   ├── data_exporter.py        # Export JSON/CSV
+│   ├── temperature_sensor.py   # Capteurs de température
+│   ├── config.py               # Configuration et thème
+│   ├── utils.py                # Fonctions utilitaires
+│   └── components/             # Composants UI
+│       ├── metric_card.py      # Cartes métriques
+│       ├── temperature_card.py # Carte température
+│       ├── charts.py           # Graphiques
+│       ├── process_list.py     # Liste de processus
+│       ├── system_info.py      # Panneau d'infos
+│       └── alert_manager.py    # Système d'alertes
+├── assets/                      # Logo et ressources
+├── docs/                        # Documentation
+├── scripts/                     # Scripts de lancement
+├── Taskly.app/                  # Application macOS
 ├── exports/                     # Données exportées
 ├── env/                         # Environnement virtuel
-└── README.md                    # Ce fichier
+├── requirements.txt             # Dépendances Python
+├── LICENSE                      # Licence MIT
+└── README.md                    # README principal
 ```
 
 ---
@@ -308,7 +315,7 @@ Puis redémarrez Taskly.
 
 1. Fermez toutes les fenêtres
 2. Appuyez sur `Ctrl+C` dans tous les terminaux
-3. Relancez une seule fois : `python main.py`
+3. Relancez une seule fois : `python src/main.py`
 
 ---
 

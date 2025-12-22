@@ -97,10 +97,10 @@ source env/bin/activate  # macOS/Linux
 env\Scripts\activate  # Windows
 
 # Lancer l'application
-python main.py
+python src/main.py
 ```
 
-**Important** : Ne lancez l'application qu'une seule fois. Chaque exécution ouvre une nouvelle fenêtre.
+**Important** : Ne lancez l'application qu'une seule fois. Chaque exécution de `python src/main.py` ouvre une nouvelle fenêtre.
 
 ---
 
@@ -141,7 +141,7 @@ Puis redémarrez Taskly.
 **Solution** : 
 1. Fermez toutes les fenêtres Flet
 2. Appuyez sur `Ctrl+C` dans tous les terminaux
-3. Relancez une seule fois : `python main.py`
+3. Relancez une seule fois : `python src/main.py`
 
 ### Erreur de permission sur Linux
 
