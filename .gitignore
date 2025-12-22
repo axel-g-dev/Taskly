@@ -68,4 +68,4 @@ archive_*.py
 !scripts/launch_taskly.command
 
 # Application macOS (ne pas versionner l'exécutable)
-# Taskly.app/Contents/MacOS/Taskly
+Taskly.app/Contents/MacOS/Taskly
