@@ -1,301 +1,412 @@
-import tkinter as tk
-from tkinter import ttk
+import flet as ft
 import psutil
-import platform
-import datetime
-from typing import List, Dict, Any
+import time
+import threading
+from collections import deque
 
-# --- 🎨 DESIGN SYSTEM (APPLE DARK MODE) ---
-class Design:
-    # Palette officielle macOS Dark Mode
-    BG_WINDOW = "#1C1C1E"    # Fond global (System Gray 6)
-    BG_CARD = "#2C2C2E"      # Fond des cartes (System Gray 5)
-    TEXT_PRIMARY = "#FFFFFF"
-    TEXT_SECONDARY = "#98989D" # Subtext (System Gray)
-    
-    # Couleurs d'accentuation
-    ACCENT_BLUE = "#0A84FF"
-    ACCENT_GREEN = "#30D158"
-    ACCENT_ORANGE = "#FF9F0A"
-    ACCENT_RED = "#FF453A"
-    ACCENT_PURPLE = "#BF5AF2"
-    
-    # Polices (SF Pro simulée)
-    FONT_TITLE = ("Helvetica Neue", 18, "bold")
-    FONT_SUBTITLE = ("Helvetica Neue", 11, "bold")
-    FONT_VALUE = ("Helvetica Neue", 24, "bold")
-    FONT_NORMAL = ("Helvetica Neue", 11)
-    FONT_MONO = ("Menlo", 10)
+# ==========================================
+# 0. HELPER FUNCTIONS
+# ==========================================
+def with_opacity(opacity: float, color: str) -> str:
+    """
+    Applique manuellement l'opacité à une couleur Hex (#AARRGGBB).
+    """
+    if not color.startswith("#"):
+        return color 
+    alpha = int(opacity * 255)
+    code = color.lstrip("#")
+    return f"#{alpha:02x}{code}"
 
-# --- 🧠 BACKEND (LOGIQUE) ---
-class SystemData:
+# ==========================================
+# 1. DESIGN SYSTEM & CONSTANTS
+# ==========================================
+class AppleTheme:
+    # Couleurs système (Dark Mode)
+    BG_COLOR = "#1C1C1E"        # System Gray 6
+    CARD_COLOR = "#2C2C2E"      # Secondary System Background
+    TEXT_WHITE = "#FFFFFF"
+    TEXT_GREY = "#8E8E93"       # System Gray
+    TRANSPARENT = "#00000000"   
+    
+    # Accents Apple
+    BLUE = "#0A84FF"
+    GREEN = "#30D158"
+    ORANGE = "#FF9F0A"
+    RED = "#FF453A"
+    PURPLE = "#BF5AF2"
+
+    # Styling
+    BORDER_RADIUS = 18
+    PADDING = 20
+
+# ==========================================
+# 2. DATA MANAGER (Model & Logic)
+# ==========================================
+class SystemDataManager:
     def __init__(self):
-        self.last_net = psutil.net_io_counters()
-        self.cpu_history = [0.0] * 100 # Plus de points pour le grand écran
+        self.cpu_history = deque([0]*60, maxlen=60) # Historique 60 sec
+        self.last_net_io = psutil.net_io_counters()
+        self.last_time = time.time()
 
-    def get_stats(self):
-        # CPU & RAM
-        cpu = psutil.cpu_percent(interval=None)
-        ram = psutil.virtual_memory()
+    def get_metrics(self):
+        """Récupère toutes les métriques système."""
         
-        # Réseau
-        net = psutil.net_io_counters()
-        down = (net.bytes_recv - self.last_net.bytes_recv) / 1024
-        up = (net.bytes_sent - self.last_net.bytes_sent) / 1024
-        self.last_net = net
+        # 1. CPU
+        cpu_pct = psutil.cpu_percent(interval=None)
+        # Sécurité : si psutil renvoie None, on met 0.0
+        if cpu_pct is None: cpu_pct = 0.0
         
-        # Historique
-        self.cpu_history.pop(0)
-        self.cpu_history.append(cpu)
+        self.cpu_history.append(cpu_pct)
         
-        # Batterie
-        bat = psutil.sensors_battery()
-        bat_pct = bat.percent if bat else 0
-        is_plugged = bat.power_plugged if bat else False
+        # 2. Memory
+        mem = psutil.virtual_memory()
+        
+        # 3. Network Speed
+        current_net_io = psutil.net_io_counters()
+        current_time = time.time()
+        elapsed = current_time - self.last_time
+        
+        if elapsed <= 0: elapsed = 1 
 
+        bytes_sent = current_net_io.bytes_sent - self.last_net_io.bytes_sent
+        bytes_recv = current_net_io.bytes_recv - self.last_net_io.bytes_recv
+        
+        upload_speed = (bytes_sent / 1024) / elapsed # KB/s
+        download_speed = (bytes_recv / 1024) / elapsed # KB/s
+        
+        self.last_net_io = current_net_io
+        self.last_time = current_time
+
+        # 4. Battery
+        battery = psutil.sensors_battery()
+        batt_pct = battery.percent if battery else 0
+        batt_plugged = battery.power_plugged if battery else False
+        
         return {
-            "cpu": cpu,
-            "ram_pct": ram.percent,
-            "ram_used": round(ram.used / (1024**3), 1),
-            "net_down": down,
-            "net_up": up,
-            "bat_pct": bat_pct,
-            "is_plugged": is_plugged,
-            "history": self.cpu_history
+            "cpu_percent": cpu_pct,
+            "cpu_history": list(self.cpu_history),
+            "ram_percent": mem.percent,
+            "ram_used_gb": mem.used / (1024**3),
+            "ram_total_gb": mem.total / (1024**3),
+            "net_up": upload_speed,
+            "net_down": download_speed,
+            "battery_percent": batt_pct,
+            "battery_plugged": batt_plugged
         }
 
-    def get_procs(self):
+    def get_top_processes(self, limit=7):
+        """Récupère les processus les plus gourmands."""
+        procs = []
+        for p in psutil.process_iter(['pid', 'name', 'cpu_percent']):
+            try:
+                # Force le calcul
+                p.info['cpu_percent']
+                
+                # NETTOYAGE CRITIQUE : Si cpu_percent est None, on le force à 0.0
+                if p.info['cpu_percent'] is None:
+                    p.info['cpu_percent'] = 0.0
+                
+                # Gestion des noms None
+                if p.info['name'] is None:
+                    p.info['name'] = "Unknown"
+
+                procs.append(p.info)
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+        
+        # Tri par CPU décroissant (double sécurité sur le None avec 'or 0')
+        sorted_procs = sorted(procs, key=lambda p: p['cpu_percent'] or 0, reverse=True)
+        return sorted_procs[:limit]
+
+# ==========================================
+# 3. UI COMPONENTS
+# ==========================================
+class MetricCard(ft.Container):
+    """Carte pour les métriques (CPU, RAM, Net)."""
+    def __init__(self, title, icon, accent_color, value_suffix=""):
+        super().__init__()
+        self.accent_color = accent_color
+        self.value_suffix = value_suffix
+        
+        # Controls
+        self.value_text = ft.Text("0", size=24, weight="bold", color=AppleTheme.TEXT_WHITE)
+        self.sub_text = ft.Text("", size=12, color=AppleTheme.TEXT_GREY)
+        self.progress_bar = ft.ProgressBar(
+            value=0, 
+            color=accent_color, 
+            bgcolor="#3A3A3C", 
+            height=6, 
+            border_radius=ft.border_radius.all(3)
+        )
+        
+        self.content = ft.Column(
+            spacing=10,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            controls=[
+                ft.Row(
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    controls=[
+                        ft.Row(controls=[
+                            ft.Icon(icon, color=accent_color, size=18),
+                            ft.Text(title, size=14, weight="w500", color=AppleTheme.TEXT_GREY),
+                        ]),
+                    ]
+                ),
+                ft.Column(
+                    spacing=5,
+                    controls=[
+                        ft.Row(
+                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                            controls=[self.value_text, self.sub_text]
+                        ),
+                        self.progress_bar
+                    ]
+                )
+            ]
+        )
+        
+        self.bgcolor = AppleTheme.CARD_COLOR
+        self.border_radius = AppleTheme.BORDER_RADIUS
+        self.padding = AppleTheme.PADDING
+        self.expand = 1
+
+    def update_data(self, main_val, sub_val, progress_val):
+        self.value_text.value = f"{main_val}{self.value_suffix}"
+        self.sub_text.value = sub_val
+        # Sécurité pour la barre de progression
+        safe_progress = 0.0
         try:
-            # Récupère le Top 15 pour les grands écrans
-            procs = sorted(
-                psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']),
-                key=lambda p: (p.info['cpu_percent'] or 0.0),
-                reverse=True
-            )
-            return procs[:20] 
+            safe_progress = float(progress_val)
         except:
-            return []
-
-# --- 🧩 COMPOSANTS UI (WIDGETS) ---
-
-class AppleCard(tk.Frame):
-    """Une carte style 'Widget iOS' avec un titre et du contenu."""
-    def __init__(self, parent, title, icon=""):
-        super().__init__(parent, bg=Design.BG_CARD, padx=15, pady=15)
-        self.columnconfigure(0, weight=1)
-        
-        # En-tête de la carte
-        header = tk.Frame(self, bg=Design.BG_CARD)
-        header.grid(row=0, column=0, sticky="ew", pady=(0, 10))
-        
-        tk.Label(header, text=f"{icon}  {title}".upper(), fg=Design.TEXT_SECONDARY, 
-                 bg=Design.BG_CARD, font=Design.FONT_SUBTITLE, anchor="w").pack(side="left")
-
-    def add_value_label(self, color=Design.TEXT_PRIMARY):
-        """Ajoute un gros chiffre au milieu."""
-        lbl = tk.Label(self, text="--", font=Design.FONT_VALUE, bg=Design.BG_CARD, fg=color)
-        lbl.grid(row=1, column=0, sticky="w")
-        return lbl
-
-    def add_sub_label(self):
-        """Ajoute un petit texte en dessous."""
-        lbl = tk.Label(self, text="--", font=Design.FONT_NORMAL, bg=Design.BG_CARD, fg=Design.TEXT_SECONDARY)
-        lbl.grid(row=2, column=0, sticky="w")
-        return lbl
-
-class ResizableGraph(tk.Canvas):
-    """Un graphique qui s'adapte à la taille de la fenêtre."""
-    def __init__(self, parent):
-        super().__init__(parent, bg=Design.BG_CARD, highlightthickness=0, height=150)
-        self.bind("<Configure>", self.on_resize)
-        self.data = []
-
-    def on_resize(self, event):
-        self.draw() # Redessiner quand la fenêtre change de taille
-
-    def update_data(self, data):
-        self.data = data
-        self.draw()
-
-    def draw(self):
-        self.delete("all")
-        w = self.winfo_width()
-        h = self.winfo_height()
-        if w < 10 or not self.data: return
-
-        # Création de la ligne
-        step = w / (len(self.data) - 1)
-        points = []
-        
-        # Fond dégradé (simulé par des lignes verticales pour la performance)
-        for i, val in enumerate(self.data):
-            x = i * step
-            y = h - (val / 100 * h)
-            points.extend([x, y])
+            safe_progress = 0.0
             
-            # Indicateur visuel si CPU élevé
-            color = Design.ACCENT_GREEN
-            if val > 50: color = Design.ACCENT_ORANGE
-            if val > 80: color = Design.ACCENT_RED
-            
-            # Petite barre verticale style "Audio Visualizer"
-            self.create_line(x, h, x, y, fill=color, width=2, stipple="gray50")
+        self.progress_bar.value = min(max(safe_progress, 0), 1)
+        self.update()
 
-        # Ligne de courbe lissée au dessus
-        if len(points) >= 4:
-            self.create_line(points, fill="white", width=2, smooth=True)
+class CPULineChart(ft.Container):
+    """Le graphique principal."""
+    def __init__(self):
+        super().__init__()
+        self.data_points = [ft.LineChartDataPoint(i, 0) for i in range(60)]
+        
+        self.chart = ft.LineChart(
+            data_series=[
+                ft.LineChartData(
+                    data_points=self.data_points,
+                    stroke_width=2,
+                    color=AppleTheme.BLUE,
+                    curved=True,
+                    stroke_cap_round=True,
+                    below_line_bgcolor=with_opacity(0.1, AppleTheme.BLUE),
+                )
+            ],
+            min_y=0,
+            max_y=100,
+            min_x=0,
+            max_x=60,
+            expand=True,
+            left_axis=ft.ChartAxis(labels=[], show_labels=False),
+            bottom_axis=ft.ChartAxis(labels=[], show_labels=False),
+            tooltip_bgcolor=AppleTheme.CARD_COLOR,
+            horizontal_grid_lines=ft.ChartGridLines(interval=25, color=with_opacity(0.1, "#FFFFFF"), width=1),
+            vertical_grid_lines=ft.ChartGridLines(interval=10, color=with_opacity(0.1, "#FFFFFF"), width=1),
+            border=ft.border.all(0, AppleTheme.TRANSPARENT) 
+        )
 
-class ModernProcessTable(ttk.Treeview):
-    """Tableau style Finder."""
-    def __init__(self, parent):
-        columns = ("pid", "nom", "cpu", "ram")
-        super().__init__(parent, columns=columns, show="headings", selectmode="none")
-        
-        # Configuration des colonnes
-        self.heading("pid", text="PID")
-        self.heading("nom", text="NOM")
-        self.heading("cpu", text="CPU %")
-        self.heading("ram", text="RAM %")
-        
-        self.column("pid", width=50, anchor="center")
-        self.column("nom", width=150, anchor="w")
-        self.column("cpu", width=70, anchor="e")
-        self.column("ram", width=70, anchor="e")
-        
-        # Styling via ttk
-        style = ttk.Style()
-        style.theme_use("clam")
-        style.configure("Treeview", 
-                        background=Design.BG_CARD, 
-                        foreground=Design.TEXT_PRIMARY, 
-                        fieldbackground=Design.BG_CARD,
-                        font=Design.FONT_NORMAL,
-                        rowheight=25,
-                        borderwidth=0)
-        style.configure("Treeview.Heading", 
-                        background=Design.BG_WINDOW, 
-                        foreground=Design.TEXT_SECONDARY, 
-                        font=Design.FONT_SUBTITLE,
-                        borderwidth=0)
-        style.map("Treeview", background=[('selected', Design.BG_CARD)]) # Désactiver la sélection bleue moche
+        self.content = ft.Column(
+            controls=[
+                ft.Text("CPU History", size=16, weight="w600", color=AppleTheme.TEXT_WHITE),
+                ft.Container(content=self.chart, expand=True, padding=ft.padding.only(top=10))
+            ]
+        )
+        self.bgcolor = AppleTheme.CARD_COLOR
+        self.border_radius = AppleTheme.BORDER_RADIUS
+        self.padding = AppleTheme.PADDING
+        self.expand = 2 
 
-# --- 🚀 APPLICATION PRINCIPALE ---
-class TasklyApp:
-    def __init__(self, root):
-        self.root = root
-        self.data_manager = SystemData()
-        self.setup_window()
+    def update_chart(self, history_list):
+        for i, val in enumerate(history_list):
+            if i < len(self.data_points):
+                # Sécurité si val est None (ne devrait pas arriver avec les fix précédents)
+                self.data_points[i].y = val if val is not None else 0
+        self.chart.update()
+
+class ProcessList(ft.Container):
+    """Tableau des processus."""
+    def __init__(self):
+        super().__init__()
+        
+        self.data_table = ft.DataTable(
+            columns=[
+                ft.DataColumn(ft.Text("Process", color=AppleTheme.TEXT_GREY, size=12)),
+                ft.DataColumn(ft.Text("PID", color=AppleTheme.TEXT_GREY, size=12), numeric=True),
+                ft.DataColumn(ft.Text("CPU%", color=AppleTheme.TEXT_GREY, size=12), numeric=True),
+            ],
+            rows=[],
+            column_spacing=10,
+            heading_row_height=30,
+            data_row_min_height=40,
+        )
+
+        self.content = ft.Column(
+            controls=[
+                ft.Text("Top Processes", size=16, weight="w600", color=AppleTheme.TEXT_WHITE),
+                ft.Container(
+                    content=ft.Column([self.data_table], scroll=ft.ScrollMode.AUTO),
+                    expand=True
+                )
+            ]
+        )
+        self.bgcolor = AppleTheme.CARD_COLOR
+        self.border_radius = AppleTheme.BORDER_RADIUS
+        self.padding = AppleTheme.PADDING
+        self.expand = 1
+
+    def update_processes(self, procs):
+        new_rows = []
+        for p in procs:
+            # Sécurité ultime avant affichage
+            name = p.get('name', 'Unknown')
+            pid = p.get('pid', 0)
+            cpu = p.get('cpu_percent', 0.0)
+            if cpu is None: cpu = 0.0
+
+            new_rows.append(
+                ft.DataRow(
+                    cells=[
+                        ft.DataCell(ft.Text(str(name)[:15], color=AppleTheme.TEXT_WHITE, size=13, weight="w500")),
+                        ft.DataCell(ft.Text(str(pid), color=AppleTheme.TEXT_GREY, size=12)),
+                        ft.DataCell(ft.Text(f"{cpu:.1f}%", color=AppleTheme.ORANGE, size=13, weight="bold")),
+                    ]
+                )
+            )
+        self.data_table.rows = new_rows
+        self.data_table.update()
+
+# ==========================================
+# 4. MAIN APPLICATION (DashboardUI)
+# ==========================================
+class DashboardUI:
+    def __init__(self, page: ft.Page):
+        self.page = page
+        self.data_manager = SystemDataManager()
+        self.running = True
+        
+        self.setup_page()
         self.build_ui()
-        self.update_loop()
+        self.start_monitoring()
 
-    def setup_window(self):
-        self.root.title("Taskly Pro")
-        self.root.geometry("1000x700") # Taille de départ large
-        self.root.minsize(800, 600)
-        self.root.configure(bg=Design.BG_WINDOW)
+    def setup_page(self):
+        self.page.title = "Taskly - System Monitor"
+        self.page.bgcolor = AppleTheme.BG_COLOR
+        self.page.padding = 30
+        self.page.theme_mode = ft.ThemeMode.DARK
         
-        # Configuration de la grille responsive
-        # Colonne 0 = 1/3, Colonne 1 = 1/3, Colonne 2 = 1/3
-        self.root.columnconfigure(0, weight=1)
-        self.root.columnconfigure(1, weight=1)
-        self.root.columnconfigure(2, weight=1)
-        # Ligne 1 (stats) fix, Ligne 2 (graph/table) prend le reste
-        self.root.rowconfigure(1, weight=1) 
+        self.page.fonts = {
+            "SF Pro": "https://raw.githubusercontent.com/google/fonts/main/ofl/sfpro/SFPro-Regular.ttf"
+        }
+        self.page.theme = ft.Theme(font_family="SF Pro")
+        
+        self.page.window.width = 1000
+        self.page.window.height = 800
+        self.page.window.min_width = 800
+        self.page.window.min_height = 600
 
     def build_ui(self):
-        # 1. Header
-        header = tk.Frame(self.root, bg=Design.BG_WINDOW)
-        header.grid(row=0, column=0, columnspan=3, sticky="ew", padx=20, pady=20)
+        # Header
+        header = ft.Row(
+            controls=[
+                ft.Text("Taskly", size=28, weight="bold", color=AppleTheme.TEXT_WHITE),
+                ft.Container(
+                    content=ft.Text("Live", color=AppleTheme.GREEN, size=12, weight="bold"),
+                    bgcolor=with_opacity(0.2, AppleTheme.GREEN),
+                    padding=ft.padding.symmetric(horizontal=10, vertical=5),
+                    border_radius=20
+                )
+            ],
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER
+        )
+
+        # Metric Cards
+        self.cpu_card = MetricCard("CPU Usage", ft.Icons.MEMORY, AppleTheme.BLUE, "%")
+        self.ram_card = MetricCard("Memory", ft.Icons.SD_STORAGE, AppleTheme.PURPLE, "%")
+        self.net_card = MetricCard("Network", ft.Icons.WIFI, AppleTheme.GREEN, " KB/s")
+
+        top_row = ft.Row(
+            controls=[self.cpu_card, self.ram_card, self.net_card],
+            spacing=20,
+        )
+
+        # Bottom Row
+        self.chart_component = CPULineChart()
+        self.process_component = ProcessList()
+
+        bottom_row = ft.Row(
+            controls=[self.chart_component, self.process_component],
+            spacing=20,
+            expand=True 
+        )
+
+        self.layout = ft.Column(
+            controls=[
+                header,
+                ft.Container(height=20),
+                top_row,
+                ft.Container(height=10),
+                bottom_row
+            ],
+            expand=True
+        )
         
-        tk.Label(header, text=f"{platform.node().split('.')[0]}", 
-                 font=Design.FONT_TITLE, fg=Design.TEXT_PRIMARY, bg=Design.BG_WINDOW).pack(side="left")
-        
-        self.lbl_clock = tk.Label(header, text="--:--", font=Design.FONT_TITLE, 
-                                  fg=Design.TEXT_SECONDARY, bg=Design.BG_WINDOW)
-        self.lbl_clock.pack(side="right")
+        self.page.add(self.layout)
 
-        # 2. Cartes de Stats (Ligne 1)
-        # CPU Card
-        self.card_cpu = AppleCard(self.root, "Processeur", "🧠")
-        self.card_cpu.grid(row=1, column=0, sticky="ew", padx=(20, 10), pady=10)
-        self.lbl_cpu_val = self.card_cpu.add_value_label(Design.ACCENT_BLUE)
-        self.lbl_cpu_sub = self.card_cpu.add_sub_label()
+    def start_monitoring(self):
+        monitor_thread = threading.Thread(target=self._update_loop, daemon=True)
+        monitor_thread.start()
 
-        # RAM Card
-        self.card_ram = AppleCard(self.root, "Mémoire", "💾")
-        self.card_ram.grid(row=1, column=1, sticky="ew", padx=10, pady=10)
-        self.lbl_ram_val = self.card_ram.add_value_label(Design.ACCENT_PURPLE)
-        self.lbl_ram_sub = self.card_ram.add_sub_label()
-
-        # Battery/Net Card
-        self.card_misc = AppleCard(self.root, "Système", "⚡")
-        self.card_misc.grid(row=1, column=2, sticky="ew", padx=(10, 20), pady=10)
-        self.lbl_misc_val = self.card_misc.add_value_label(Design.ACCENT_GREEN)
-        self.lbl_misc_sub = self.card_misc.add_sub_label()
-
-        # 3. Zone Contenu Principal (Ligne 2 - Expandable)
-        # On divise le bas en deux colonnes principales
-        
-        # Container Graphique (Gauche, prend 2/3 de la largeur si possible)
-        graph_container = tk.Frame(self.root, bg=Design.BG_CARD)
-        graph_container.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=(20, 10), pady=(10, 20))
-        
-        tk.Label(graph_container, text="HISTORIQUE D'ACTIVITÉ", font=Design.FONT_SUBTITLE, 
-                 bg=Design.BG_CARD, fg=Design.TEXT_SECONDARY).pack(anchor="w", padx=15, pady=15)
-        
-        self.graph = ResizableGraph(graph_container)
-        self.graph.pack(fill="both", expand=True, padx=10, pady=(0, 10))
-
-        # Container Processus (Droite, prend 1/3)
-        list_container = tk.Frame(self.root, bg=Design.BG_CARD)
-        list_container.grid(row=2, column=2, sticky="nsew", padx=(10, 20), pady=(10, 20))
-        
-        tk.Label(list_container, text="APPS GOURMANDES", font=Design.FONT_SUBTITLE, 
-                 bg=Design.BG_CARD, fg=Design.TEXT_SECONDARY).pack(anchor="w", padx=15, pady=15)
-        
-        self.proc_table = ModernProcessTable(list_container)
-        self.proc_table.pack(fill="both", expand=True, padx=5, pady=5)
-
-    def update_loop(self):
-        # Récupération données
-        data = self.data_manager.get_stats()
-        procs = self.data_manager.get_procs()
-        
-        # Mise à jour Clock
-        self.lbl_clock.config(text=datetime.datetime.now().strftime("%H:%M:%S"))
-
-        # Mise à jour Cartes
-        self.lbl_cpu_val.config(text=f"{data['cpu']}%")
-        self.lbl_cpu_sub.config(text="Utilisation Totale")
-
-        self.lbl_ram_val.config(text=f"{data['ram_pct']}%")
-        self.lbl_ram_sub.config(text=f"{data['ram_used']} GB utilisés")
-        
-        plugged_icon = "⚡" if data['is_plugged'] else "🔋"
-        self.lbl_misc_val.config(text=f"{data['bat_pct']}%")
-        self.lbl_misc_sub.config(text=f"{plugged_icon} Batterie | ⬇ {data['net_down']:.1f} KB/s")
-
-        # Mise à jour Graphique
-        self.graph.update_data(data['history'])
-
-        # Mise à jour Table (On efface et on réécrit, méthode simple)
-        for item in self.proc_table.get_children():
-            self.proc_table.delete(item)
-            
-        for p in procs:
+    def _update_loop(self):
+        while self.running:
             try:
-                self.proc_table.insert("", "end", values=(
-                    p.info['pid'],
-                    p.info['name'],
-                    f"{p.info['cpu_percent'] or 0.0:.1f}%",
-                    f"{p.info['memory_percent'] or 0.0:.1f}%"
-                ))
-            except: pass
+                metrics = self.data_manager.get_metrics()
+                top_procs = self.data_manager.get_top_processes()
 
-        # Rappel 1000ms
-        self.root.after(1000, self.update_loop)
+                # Mise à jour des cartes
+                self.cpu_card.update_data(
+                    f"{metrics['cpu_percent']:.1f}", 
+                    "System Load", 
+                    metrics['cpu_percent'] / 100
+                )
+                
+                self.ram_card.update_data(
+                    f"{metrics['ram_percent']:.1f}", 
+                    f"{metrics['ram_used_gb']:.1f} GB / {metrics['ram_total_gb']:.1f} GB", 
+                    metrics['ram_percent'] / 100
+                )
+                
+                total_speed = metrics['net_down'] + metrics['net_up']
+                max_ref_speed = 5000 
+                self.net_card.update_data(
+                    f"{metrics['net_down']:.0f}", 
+                    f"Up: {metrics['net_up']:.0f} KB/s", 
+                    min(total_speed / max_ref_speed, 1.0)
+                )
+
+                # Mise à jour du graphique et de la liste
+                self.chart_component.update_chart(metrics['cpu_history'])
+                self.process_component.update_processes(top_procs)
+
+                time.sleep(1)
+                
+            except Exception as e:
+                # Impression plus détaillée de l'erreur
+                print(f"Error in UI Loop: {e}")
+                import traceback
+                traceback.print_exc()
+                time.sleep(1)
+
+def main(page: ft.Page):
+    app = DashboardUI(page)
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = TasklyApp(root)
-    root.mainloop()
+    ft.app(target=main)
