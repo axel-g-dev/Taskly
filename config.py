@@ -53,3 +53,12 @@ ALERT_THRESHOLDS = {
 UPDATE_INTERVAL = 1.0       # seconds between updates
 HISTORY_SIZE = 30           # number of data points to keep
 CACHE_INTERVAL = 5          # seconds between disk/battery cache updates
+
+
+# ==========================================
+# UI ANIMATION SETTINGS
+# ==========================================
+ENABLE_ANIMATIONS = True    # Enable/disable animations
+ANIMATION_DURATION = 200    # Animation duration (ms) - short for performance
+HOVER_SCALE = 1.02          # Scale on hover (subtle)
+SHADOW_BLUR = 15            # Shadow blur radius
