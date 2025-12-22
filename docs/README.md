@@ -39,6 +39,12 @@ Le **Moniteur d'activité** d'Apple, bien que fonctionnel, souffre de plusieurs 
 
 **Taskly transforme la surveillance système en une expérience agréable, moderne et efficace.**
 
+### Aperçu de l'Interface
+
+![Screenshot Taskly](../assets/screenshot_taskly.png)
+
+*Interface principale de Taskly avec cartes métriques, graphiques en temps réel et liste de processus*
+
 ---
 
 ## Fonctionnalités

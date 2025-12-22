@@ -17,6 +17,54 @@ Le **Moniteur d'activité** d'Apple est puissant mais peu intuitif et visuelleme
 
 Taskly transforme la surveillance système en une expérience agréable et efficace.
 
+### Aperçu
+
+![Screenshot Taskly](assets/screenshot_taskly.png)
+
+---
+
+## Structure du Projet
+
+```
+Taskly/
+├── src/                         # Code source
+│   ├── main.py                 # Point d'entrée
+│   ├── dashboard.py            # Interface principale
+│   ├── data_manager.py         # Collecte des métriques
+│   ├── data_exporter.py        # Export JSON/CSV
+│   ├── temperature_sensor.py   # Capteurs de température
+│   ├── config.py               # Configuration et thème
+│   ├── utils.py                # Fonctions utilitaires
+│   └── components/             # Composants UI
+│       ├── __init__.py
+│       ├── metric_card.py      # Cartes métriques
+│       ├── temperature_card.py # Carte température
+│       ├── charts.py           # Graphiques
+│       ├── process_list.py     # Liste de processus
+│       ├── system_info.py      # Panneau d'infos
+│       └── alert_manager.py    # Système d'alertes
+├── assets/                      # Ressources
+│   ├── icon.png                # Logo de l'application
+│   └── screenshot_taskly.png   # Capture d'écran
+├── docs/                        # Documentation
+│   ├── README.md               # Documentation complète
+│   ├── INSTALL.md              # Guide d'installation
+│   ├── CONTRIBUTING.md         # Guide de contribution
+│   └── LAUNCHER.md             # Options de lancement
+├── scripts/                     # Scripts utilitaires
+│   └── launch_taskly.command   # Lanceur macOS
+├── Taskly.app/                  # Application macOS
+│   └── Contents/
+│       ├── Info.plist          # Métadonnées
+│       ├── MacOS/Taskly        # Script exécutable
+│       └── Resources/icon.png  # Icône
+├── exports/                     # Données exportées (gitignored)
+├── env/                         # Environnement virtuel (gitignored)
+├── requirements.txt             # Dépendances Python
+├── LICENSE                      # Licence MIT
+└── README.md                    # Ce fichier
+```
+
 ---
 
 ## Lancement Rapide
