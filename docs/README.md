@@ -8,6 +8,39 @@ Un moniteur système moderne avec une interface inspirée d'Apple, développé e
 
 ---
 
+## Pourquoi Taskly ?
+
+Le **Moniteur d'activité** d'Apple, bien que fonctionnel, souffre de plusieurs limitations :
+- Interface peu intuitive avec trop d'informations dispersées
+- Design vieillissant qui n'a pas évolué depuis des années
+- Absence de visualisations modernes (graphiques limités)
+- Pas d'alertes configurables
+- Aucune option d'export de données
+
+**Taskly a été créé pour résoudre ces problèmes** en offrant :
+
+### Une Interface Moderne et Intuitive
+- **Cartes métriques colorées** : CPU (bleu), RAM (violet), Température (orange), Réseau (vert)
+- **Graphiques en temps réel** : Historique visuel sur 30 secondes pour CPU, RAM et Réseau
+- **Design Apple-style** : Interface sombre élégante avec animations fluides
+- **Informations d'un coup d'œil** : Tout ce dont vous avez besoin sur un seul écran
+
+### Des Fonctionnalités Avancées
+- **Système d'alertes** : Soyez notifié quand CPU > 90%, RAM > 85%, ou Température > 80°C
+- **Export de données** : Sauvegardez vos métriques en JSON ou CSV pour analyse
+- **Surveillance de température** : Support multi-plateforme (Linux natif, macOS via osx-cpu-temp)
+- **Optimisations intelligentes** : Cache et mises à jour conditionnelles pour des performances optimales
+
+### Une Expérience Utilisateur Supérieure
+- **Lancement rapide** : Application macOS native ou script de lancement
+- **Mise à jour fluide** : Rafraîchissement en temps réel sans ralentissement
+- **Architecture modulaire** : Code propre et facilement extensible
+- **Open Source** : Licence MIT, personnalisable à souhait
+
+**Taskly transforme la surveillance système en une expérience agréable, moderne et efficace.**
+
+---
+
 ## Fonctionnalités
 
 ### Surveillance en temps réel
