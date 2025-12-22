@@ -5,6 +5,20 @@
   <p><em>Un moniteur système moderne avec interface Apple-style</em></p>
 </div>
 
+## Pourquoi Taskly ?
+
+Le **Moniteur d'activité** d'Apple est puissant mais peu intuitif et visuellement désuet. Taskly a été créé pour offrir une alternative moderne avec :
+
+- **Interface intuitive** : Informations claires et accessibles d'un coup d'œil
+- **Design moderne** : Interface Apple-style avec animations fluides
+- **Visualisations améliorées** : Graphiques en temps réel et cartes métriques colorées
+- **Fonctionnalités avancées** : Alertes configurables, export de données, surveillance de température
+- **Expérience optimisée** : Mise à jour en temps réel sans ralentissement
+
+Taskly transforme la surveillance système en une expérience agréable et efficace.
+
+---
+
 ## Lancement Rapide
 
 ```bash
