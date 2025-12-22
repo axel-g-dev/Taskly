@@ -65,4 +65,7 @@ exports/
 archive_*.py
 
 # Ne pas ignorer le lanceur
-!launch_taskly.command
+!scripts/launch_taskly.command
+
+# Application macOS (ne pas versionner l'exécutable)
+# Taskly.app/Contents/MacOS/Taskly

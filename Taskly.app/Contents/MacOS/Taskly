@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Taskly macOS Application Launcher
+
+# Get the absolute path to the project directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+
+# Log for debugging
+echo "=== Taskly Launch $(date) ===" >> /tmp/taskly_launch.log
+echo "Project directory: $PROJECT_DIR" >> /tmp/taskly_launch.log
+echo "Script directory: $SCRIPT_DIR" >> /tmp/taskly_launch.log
+
+# Change to project directory
+cd "$PROJECT_DIR"
+
+# Use absolute path to Python in virtual environment
+PYTHON_PATH="$PROJECT_DIR/env/bin/python"
+
+# Check if Python exists
+if [ ! -f "$PYTHON_PATH" ]; then
+    osascript -e 'display dialog "Error: Python not found at '"$PYTHON_PATH"'" buttons {"OK"} default button "OK"'
+    echo "ERROR: Python not found at $PYTHON_PATH" >> /tmp/taskly_launch.log
+    exit 1
+fi
+
+# Check if flet is installed
+if ! "$PYTHON_PATH" -c "import flet" 2>/dev/null; then
+    osascript -e 'display dialog "Error: Flet module not found. Please run:\ncd '"$PROJECT_DIR"'\nsource env/bin/activate\npip install -r requirements.txt" buttons {"OK"} default button "OK"'
+    echo "ERROR: Flet not found" >> /tmp/taskly_launch.log
+    exit 1
+fi
+
+# Launch Taskly using absolute Python path
+echo "Launching Taskly..." >> /tmp/taskly_launch.log
+"$PYTHON_PATH" src/main.py 2>&1 | tee -a /tmp/taskly_launch.log
