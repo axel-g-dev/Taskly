@@ -97,7 +97,7 @@ Pour lancer Taskly facilement depuis le bureau :
 2. Double-cliquez dessus pour lancer l'application
 3. (Optionnel) Créez un alias sur votre bureau :
    ```bash
-   ln -s ~/Desktop/Taskly/launch_taskly.command ~/Desktop/Taskly-Launcher
+   ln -s <chemin>/Taskly/scripts/launch_taskly.command ~/Desktop/Taskly-Launcher
    ```
 
 Voir [LAUNCHER.md](LAUNCHER.md) pour plus d'options de lancement.
