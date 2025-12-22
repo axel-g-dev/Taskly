@@ -88,22 +88,32 @@ class TemperatureSensor:
             return None
     
     def _get_temp_osx(self):
-        """Récupère la température via osx-cpu-temp (macOS)."""
+        """
+        Récupère la température CPU via osx-cpu-temp (macOS).
+        
+        Note: osx-cpu-temp lit la température du package CPU (capteur TC0P), qui représente
+        la température moyenne globale du processeur. Cette valeur est plus stable et 
+        représentative de la charge globale que les températures individuelles des cœurs
+        (TC0D, TC1D, etc.) qui peuvent être plus élevées mais plus variables.
+        
+        La température du package est celle utilisée par la plupart des outils de monitoring
+        standard et est recommandée pour un suivi général de la santé du système.
+        """
         try:
             result = subprocess.run(
-                ['osx-cpu-temp'],
+                ['osx-cpu-temp', '-c'],
                 capture_output=True,
                 text=True,
                 timeout=2
             )
             
             if result.returncode == 0:
-                # Output format: "61.8°C"
+                # Format de sortie: "61.8°C"
                 output = result.stdout.strip()
-                # Extract number from "XX.X°C"
+                # Extraire le nombre de "XX.X°C"
                 temp_str = output.replace('°C', '').strip()
                 temp = float(temp_str)
-                verbose_log(f"CPU Temp (osx-cpu-temp): {temp:.0f}°C")
+                verbose_log(f"CPU Temp (TC0P package): {temp:.0f}°C")
                 return temp
             
             return None
