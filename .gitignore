@@ -63,3 +63,6 @@ exports/
 
 # Fichiers archivés
 archive_*.py
+
+# Ne pas ignorer le lanceur
+!launch_taskly.command

@@ -42,6 +42,12 @@ Un moniteur système moderne avec une interface inspirée d'Apple, développé e
 - **Mises à jour conditionnelles** : Interface mise à jour uniquement si changement > 0.5%
 - **Architecture modulaire** : Code organisé en composants réutilisables
 
+### Interface utilisateur
+- **Animations optimisées** : Transitions fluides et effets de survol
+- **Design moderne** : Interface Apple-style avec thème sombre
+- **Lanceur bureau** : Script de lancement rapide pour macOS
+- **Responsive** : Interface adaptative et fluide
+
 ---
 
 ## Installation
@@ -82,6 +88,19 @@ osx-cpu-temp
 ```
 
 **Note** : La surveillance de température fonctionne nativement sur Linux. Sur macOS, elle nécessite `osx-cpu-temp`. Sur Windows, le support varie selon le matériel.
+
+### Lanceur bureau (macOS)
+
+Pour lancer Taskly facilement depuis le bureau :
+
+1. Localisez le fichier `launch_taskly.command` dans le dossier Taskly
+2. Double-cliquez dessus pour lancer l'application
+3. (Optionnel) Créez un alias sur votre bureau :
+   ```bash
+   ln -s ~/Desktop/Taskly/launch_taskly.command ~/Desktop/Taskly-Launcher
+   ```
+
+Voir [LAUNCHER.md](LAUNCHER.md) pour plus d'options de lancement.
 
 ---
 
@@ -170,6 +189,15 @@ ALERT_THRESHOLDS = {
 UPDATE_INTERVAL = 1.0       # Intervalle de mise à jour (secondes)
 HISTORY_SIZE = 30           # Nombre de points d'historique
 CACHE_INTERVAL = 5          # Intervalle de cache disque/batterie (secondes)
+```
+
+### Paramètres d'animation
+
+```python
+ENABLE_ANIMATIONS = True    # Activer/désactiver les animations
+ANIMATION_DURATION = 200    # Durée des animations (ms)
+HOVER_SCALE = 1.02          # Échelle au survol
+SHADOW_BLUR = 15            # Flou de l'ombre
 ```
 
 ### Logs de débogage
