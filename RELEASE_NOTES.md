@@ -1,40 +1,114 @@
-# Taskly v1.0.0 - Release Notes
+# Taskly v1.1.0 - Internationalisation et Optimisations
 
-## 🎉 Première Version Publique
+## 🌐 Nouvelle Fonctionnalité Majeure : Support Multilingue
 
-Taskly est un moniteur système moderne créé pour remplacer le Moniteur d'activité d'Apple, qui est peu intuitif et visuellement désuet.
+Taskly supporte maintenant **deux langues** : Français et Anglais !
 
-![Screenshot Taskly](assets/screenshot_taskly.png)
+### Comment changer de langue ?
+
+Cliquez simplement sur le bouton 🌐 dans l'en-tête de l'application. Votre préférence est automatiquement sauvegardée et restaurée au prochain lancement.
+
+![Language Toggle](assets/screenshot_taskly.png)
 
 ---
 
-## ✨ Fonctionnalités Principales
+## ✨ Nouveautés
 
-### Surveillance Système Complète
-- **CPU** : Utilisation, nombre de cœurs, fréquence
-- **RAM** : Mémoire utilisée/totale avec pourcentage
-- **Réseau** : Vitesses upload/download en temps réel
-- **Disque** : Espace utilisé/total
-- **Batterie** : Niveau, état de charge, temps restant
+### Internationalisation
+- ✅ **Support Français/Anglais complet**
+- ✅ **Bouton de langue** (🌐) dans l'en-tête
+- ✅ **Persistance** de la préférence utilisateur
+- ✅ **100% des textes traduits** (interface complète)
+- ✅ **Changement instantané** sans redémarrage
 
-### Interface Moderne
-- 🎨 Design Apple-style avec thème sombre élégant
-- 📊 3 graphiques historiques en temps réel (30 secondes)
-- 🎯 Cartes métriques colorées (CPU bleu, RAM violet, Réseau vert)
-- 📋 Liste des 7 processus les plus gourmands
-- ⚡ Animations fluides et micro-interactions
+### Architecture Améliorée
+- 📁 **Nouveau fichier `constants.py`** - Toutes les constantes centralisées
+- 🔧 **Configuration unifiée** - Intervalles, seuils, dimensions UI
+- 📦 **Code mieux organisé** - Plus facile à maintenir et étendre
 
-### Fonctionnalités Avancées
-- 🔔 **Alertes configurables** : CPU > 90%, RAM > 85%
-- 💾 **Export de données** : JSON et CSV
-- 📱 **Application macOS native** : Taskly.app avec icône
-- ⚙️ **Optimisations** : Cache intelligent, mises à jour conditionnelles
+---
+
+## 🐛 Corrections de Bugs
+
+### Bug CPU >100% Corrigé ✅
+
+**Problème** : Certains processus affichaient >100% CPU dans "Top Processes"
+
+**Cause** : Sur les systèmes multi-cœurs, `psutil` retourne le pourcentage CPU total (ex: 2 cœurs à 100% = 200%)
+
+**Solution** : Normalisation par nombre de cœurs pour afficher 0-100%
+
+**Avant** :
+```
+Chrome    200% CPU  ❌
+Python    150% CPU  ❌
+```
+
+**Après** :
+```
+Chrome    100% CPU  ✅
+Python     75% CPU  ✅
+```
+
+---
+
+## ♻️ Refactorisation du Code
+
+### `data_manager.py` - Refonte Complète
+
+Le fichier a été refactorisé en **méthodes modulaires** :
+
+```python
+class SystemDataManager:
+    def _get_cpu_metrics(self)      # Collecte CPU
+    def _get_memory_metrics(self)   # Collecte RAM
+    def _get_disk_metrics(self)     # Collecte Disque (avec cache)
+    def _get_network_metrics(self)  # Collecte Réseau
+    def _get_battery_metrics(self)  # Collecte Batterie (avec cache)
+    def _get_system_metrics(self)   # Uptime, etc.
+```
+
+**Avantages** :
+- ✅ Code plus lisible et maintenable
+- ✅ Gestion d'erreurs individualisée
+- ✅ Facile d'ajouter de nouvelles métriques
+- ✅ Tests unitaires simplifiés
+
+### Composants UI Améliorés
+
+Tous les composants supportent maintenant les **mises à jour dynamiques** :
+
+- `metric_card.py` → `update_title()`
+- `process_list.py` → `update_labels()`
+- `system_info.py` → `update_labels()`
+- `charts.py` → `update_title()`
+
+---
+
+## 📊 Statistiques de la Release
+
+- **Fichiers créés** : 2
+  - `src/i18n.py` - Système de traduction
+  - `src/constants.py` - Configuration centralisée
+- **Fichiers modifiés** : 11
+- **Lignes ajoutées** : 624
+- **Lignes supprimées** : 149
+- **Langues supportées** : 2 (FR, EN)
 
 ---
 
 ## 📦 Installation
 
-### Méthode 1 : Clone et Installation
+### Mise à jour depuis v1.0.0
+
+```bash
+cd Taskly
+git pull origin main
+source env/bin/activate
+python src/main.py
+```
+
+### Nouvelle installation
 
 ```bash
 git clone https://github.com/axel-g-dev/Taskly.git
@@ -45,68 +119,64 @@ pip install -r requirements.txt
 python src/main.py
 ```
 
-### Méthode 2 : Application macOS
+---
 
-1. Télécharger le dépôt
-2. Double-cliquer sur `Taskly.app`
+## 🚀 Utilisation
+
+### Changer de Langue
+
+1. Cliquez sur le bouton 🌐 dans l'en-tête
+2. L'interface bascule instantanément
+3. Votre choix est sauvegardé automatiquement
+
+### Langues Disponibles
+
+- 🇫🇷 **Français** (par défaut)
+- 🇬🇧 **English**
 
 ---
 
-## 🚀 Lancement Rapide
+## 🔧 Détails Techniques
 
-**3 façons de lancer Taskly** :
+### Système de Traduction
 
-1. **Application macOS** : Double-clic sur `Taskly.app`
-2. **Script** : Double-clic sur `scripts/launch_taskly.command`
-3. **Terminal** : `python src/main.py`
+Le système utilise un dictionnaire de traductions avec persistance :
 
----
+```python
+from i18n import TranslationManager
 
-## 📊 Statistiques
+i18n = TranslationManager(default_language="fr")
+title = i18n.t("cpu_usage")  # "Utilisation CPU" ou "CPU Usage"
+```
 
-- **Langage** : Python 3.8+
-- **Framework** : Flet 0.28+
-- **Lignes de code** : ~2000
-- **Fichiers source** : 12
-- **Documentation** : 5 guides complets
-- **Plateforme** : macOS, Linux, Windows
+### Configuration Centralisée
 
----
+Toutes les constantes sont maintenant dans `constants.py` :
 
-## 🎯 Pourquoi Taskly ?
+```python
+# Performance
+UPDATE_INTERVAL = 1.0
+HISTORY_SIZE = 30
 
-Le Moniteur d'activité d'Apple souffre de plusieurs limitations :
-- Interface peu intuitive avec informations dispersées
-- Design vieillissant
-- Absence de visualisations modernes
-- Pas d'alertes configurables
-- Aucune option d'export
+# Process Monitoring
+NORMALIZE_CPU_BY_CORES = True
 
-**Taskly résout tous ces problèmes** avec une interface moderne, des graphiques en temps réel, des alertes intelligentes et l'export de données.
-
----
-
-## 📚 Documentation
-
-- [README](README.md) - Vue d'ensemble
-- [INSTALL.md](docs/INSTALL.md) - Guide d'installation
-- [DOCUMENTATION.md](docs/DOCUMENTATION.md) - Documentation technique
-- [CONTRIBUTING.md](docs/CONTRIBUTING.md) - Guide de contribution
-- [CHANGELOG.md](CHANGELOG.md) - Historique des versions
+# UI
+WINDOW_WIDTH = 1200
+DEFAULT_LANGUAGE = "fr"
+```
 
 ---
 
 ## 🙏 Remerciements
 
-- **Flet** : Framework UI moderne pour Python
-- **psutil** : Bibliothèque de monitoring système
-- **Apple** : Inspiration pour le design
+Merci à tous ceux qui ont testé et fourni des retours sur la v1.0.0 !
 
 ---
 
-## 📝 Licence
+## 📝 Changelog Complet
 
-MIT License - Voir [LICENSE](LICENSE)
+Voir [CHANGELOG.md](CHANGELOG.md) pour tous les détails.
 
 ---
 
