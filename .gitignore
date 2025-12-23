@@ -52,6 +52,15 @@ build/
 *.wheel
 *.manifest
 *.spec
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --------------------------
+# setuptools
+# --------------------------
+.eggs/
+*.egg-info/
+.installed.cfg
 
 # --------------------------
 # macOS
@@ -72,6 +81,9 @@ Icon?
 .vscode/
 .idea/
 *.iml
+*.swp
+*.swo
+*~
 
 # --------------------------
 # Taskly spécifique
@@ -86,8 +98,20 @@ exports/
 # Fichiers archivés
 archive_*.py
 
+# Configuration utilisateur
+.taskly_config.json
+~/.taskly_config.json
+
 # Ne pas ignorer le lanceur
 !scripts/launch_taskly.command
 
 # Application macOS (ne pas versionner l'exécutable)
 Taskly.app/Contents/MacOS/Taskly
+
+# --------------------------
+# Fichiers temporaires
+# --------------------------
+*.tmp
+*.bak
+*.backup
+.cache/
