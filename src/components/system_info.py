@@ -12,6 +12,7 @@ class SystemInfoPanel(ft.Container):
     def __init__(self):
         super().__init__()
         
+        self.title_text = ft.Text("System Info", size=16, weight="w600", color=AppleTheme.TEXT_WHITE)
         self.cpu_info = ft.Text("", size=12, color=AppleTheme.TEXT_GREY)
         self.disk_info = ft.Text("", size=12, color=AppleTheme.TEXT_GREY)
         self.uptime_info = ft.Text("", size=12, color=AppleTheme.TEXT_GREY)
@@ -19,7 +20,7 @@ class SystemInfoPanel(ft.Container):
         
         self.content = ft.Column(
             controls=[
-                ft.Text("System Info", size=16, weight="w600", color=AppleTheme.TEXT_WHITE),
+                self.title_text,
                 ft.Divider(color=with_opacity(0.2, "#FFFFFF"), height=1),
                 ft.Row([
                     ft.Icon(ft.Icons.COMPUTER, color=AppleTheme.CYAN, size=16),
@@ -43,6 +44,11 @@ class SystemInfoPanel(ft.Container):
         self.bgcolor = AppleTheme.CARD_COLOR
         self.border_radius = AppleTheme.BORDER_RADIUS
         self.padding = AppleTheme.PADDING
+
+    def update_labels(self, t):
+        """Met à jour les labels avec les traductions."""
+        self.title_text.value = t("system_info")
+        self.title_text.update()
 
     def update_info(self, metrics):
         # CPU Info

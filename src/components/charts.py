@@ -14,6 +14,9 @@ class BaseLineChart(ft.Container):
         self.max_points = max_points
         self.data_points = [ft.LineChartDataPoint(i, 0) for i in range(max_points)]
         
+        self.title_text = ft.Text(title, size=16, weight="w600", color=AppleTheme.TEXT_WHITE)
+        self.subtitle_text = ft.Text(subtitle, size=12, color=AppleTheme.TEXT_GREY)
+        
         self.chart = ft.LineChart(
             data_series=[
                 ft.LineChartData(
@@ -50,8 +53,8 @@ class BaseLineChart(ft.Container):
                 ft.Row(
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     controls=[
-                        ft.Text(title, size=16, weight="w600", color=AppleTheme.TEXT_WHITE),
-                        ft.Text(subtitle, size=12, color=AppleTheme.TEXT_GREY)
+                        self.title_text,
+                        self.subtitle_text
                     ]
                 ),
                 ft.Container(content=self.chart, expand=True, padding=ft.padding.only(top=10))
@@ -61,6 +64,11 @@ class BaseLineChart(ft.Container):
         self.border_radius = AppleTheme.BORDER_RADIUS
         self.padding = AppleTheme.PADDING
         self.expand = 1
+
+    def update_title(self, new_title):
+        """Met à jour le titre du graphique."""
+        self.title_text.value = new_title
+        self.title_text.update()
 
     def update_chart(self, history_list):
         """Met à jour le graphique avec les nouvelles données."""
@@ -102,6 +110,10 @@ class NetworkLineChart(ft.Container):
         max_points = HISTORY_SIZE
         self.download_points = [ft.LineChartDataPoint(i, 0) for i in range(max_points)]
         self.upload_points = [ft.LineChartDataPoint(i, 0) for i in range(max_points)]
+        
+        self.title_text = ft.Text("Network History", size=16, weight="w600", color=AppleTheme.TEXT_WHITE)
+        self.download_label = ft.Text("Download", size=10, color=AppleTheme.TEXT_GREY)
+        self.upload_label = ft.Text("Upload", size=10, color=AppleTheme.TEXT_GREY)
         
         self.chart = ft.LineChart(
             data_series=[
@@ -147,18 +159,18 @@ class NetworkLineChart(ft.Container):
                 ft.Row(
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     controls=[
-                        ft.Text("Network History", size=16, weight="w600", color=AppleTheme.TEXT_WHITE),
+                        self.title_text,
                         ft.Row([
                             ft.Container(
                                 content=ft.Row([
                                     ft.Container(width=12, height=3, bgcolor=AppleTheme.GREEN, border_radius=2),
-                                    ft.Text("Download", size=10, color=AppleTheme.TEXT_GREY)
+                                    self.download_label
                                 ], spacing=5)
                             ),
                             ft.Container(
                                 content=ft.Row([
                                     ft.Container(width=12, height=3, bgcolor=AppleTheme.CYAN, border_radius=2),
-                                    ft.Text("Upload", size=10, color=AppleTheme.TEXT_GREY)
+                                    self.upload_label
                                 ], spacing=5)
                             )
                         ], spacing=10)
@@ -171,6 +183,11 @@ class NetworkLineChart(ft.Container):
         self.border_radius = AppleTheme.BORDER_RADIUS
         self.padding = AppleTheme.PADDING
         self.expand = 1
+
+    def update_title(self, new_title):
+        """Met à jour le titre du graphique."""
+        self.title_text.value = new_title
+        self.title_text.update()
 
     def update_chart(self, download_history, upload_history):
         """Met à jour le graphique avec les données réseau."""

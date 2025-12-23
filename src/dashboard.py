@@ -7,9 +7,11 @@ import threading
 from datetime import datetime
 
 from config import AppleTheme
+from constants import DEFAULT_LANGUAGE, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT
 from utils import debug_log, verbose_log, with_opacity
 from data_manager import SystemDataManager
 from data_exporter import DataExporter
+from i18n import TranslationManager
 from components import (
     MetricCard, CPULineChart, RAMLineChart, NetworkLineChart,
     ProcessList, SystemInfoPanel, AlertManager, AlertPanel
@@ -32,6 +34,10 @@ class DashboardUI:
         self.alert_manager = AlertManager()
         self.data_exporter = DataExporter()
         
+        # Translation manager
+        self.i18n = TranslationManager(default_language=DEFAULT_LANGUAGE)
+        self.t = self.i18n.t  # Shortcut for translations
+        
         debug_log("Setting up page...")
         self.setup_page()
         debug_log("Building UI...")
@@ -43,7 +49,7 @@ class DashboardUI:
     def setup_page(self):
         """Configure les paramètres de la page."""
         debug_log("Configuring page settings")
-        self.page.title = "Taskly - System Monitor"
+        self.page.title = self.t("app_title")
         self.page.bgcolor = AppleTheme.BG_COLOR
         self.page.padding = 30
         self.page.theme_mode = ft.ThemeMode.DARK
@@ -53,10 +59,10 @@ class DashboardUI:
         }
         self.page.theme = ft.Theme(font_family="SF Pro")
         
-        self.page.window.width = 1200
-        self.page.window.height = 850
-        self.page.window.min_width = 900
-        self.page.window.min_height = 700
+        self.page.window.width = WINDOW_WIDTH
+        self.page.window.height = WINDOW_HEIGHT
+        self.page.window.min_width = WINDOW_MIN_WIDTH
+        self.page.window.min_height = WINDOW_MIN_HEIGHT
         debug_log(f"Window size: {self.page.window.width}x{self.page.window.height}")
 
     def toggle_details(self, e):
@@ -87,6 +93,46 @@ class DashboardUI:
             debug_log("Alerts panel hidden")
         self.layout.update()
     
+    def change_language(self, e):
+        """Bascule entre français et anglais."""
+        debug_log(f"Changing language from {self.i18n.get_current_language()}")
+        new_lang = self.i18n.toggle_language()
+        debug_log(f"Language changed to: {new_lang}")
+        
+        # Update page title
+        self.page.title = self.t("app_title")
+        
+        # Update all UI components with new translations
+        self.update_ui_translations()
+        self.page.update()
+    
+    def update_ui_translations(self):
+        """Met à jour toutes les traductions de l'interface."""
+        debug_log("Updating UI translations")
+        
+        # Update metric cards
+        self.cpu_card.update_title(self.t("cpu_usage"))
+        self.ram_card.update_title(self.t("memory"))
+        self.net_card.update_title(self.t("network"))
+        
+        # Update charts
+        self.cpu_chart.update_title(self.t("cpu_history"))
+        self.ram_chart.update_title(self.t("ram_history"))
+        self.net_chart.update_title(self.t("network_history"))
+        
+        # Update process list
+        self.process_component.update_labels(self.t)
+        
+        # Update system info panel if visible
+        if self.show_details:
+            self.info_panel.update_labels(self.t)
+        
+        # Update header live badge
+        self.live_text.value = self.t("live")
+        self.live_text.update()
+        
+        debug_log("UI translations updated")
+    
     def export_data(self, e):
         """Exporte les données actuelles."""
         debug_log("Exporting data...")
@@ -109,6 +155,8 @@ class DashboardUI:
             color=AppleTheme.TEXT_GREY
         )
         
+        self.live_text = ft.Text(self.t("live"), color=AppleTheme.GREEN, size=12, weight="bold")
+        
         header = ft.Row(
             controls=[
                 ft.Row([
@@ -116,7 +164,7 @@ class DashboardUI:
                     ft.Container(
                         content=ft.Row([
                             ft.Icon(ft.Icons.CIRCLE, color=AppleTheme.GREEN, size=8),
-                            ft.Text("Live", color=AppleTheme.GREEN, size=12, weight="bold")
+                            self.live_text
                         ], spacing=5),
                         bgcolor=with_opacity(0.2, AppleTheme.GREEN),
                         padding=ft.padding.symmetric(horizontal=10, vertical=5),
@@ -126,22 +174,28 @@ class DashboardUI:
                 ft.Row([
                     self.clock_text,
                     ft.IconButton(
+                        icon=ft.Icons.LANGUAGE,
+                        icon_color=AppleTheme.CYAN,
+                        on_click=self.change_language,
+                        tooltip=self.t("tooltip_language")
+                    ),
+                    ft.IconButton(
                         icon=ft.Icons.DOWNLOAD,
                         icon_color=AppleTheme.GREEN,
                         on_click=self.export_data,
-                        tooltip="Export Data"
+                        tooltip=self.t("tooltip_export")
                     ),
                     ft.IconButton(
                         icon=ft.Icons.NOTIFICATIONS_OUTLINED,
                         icon_color=AppleTheme.ORANGE,
                         on_click=self.toggle_alerts,
-                        tooltip="Toggle Alerts"
+                        tooltip=self.t("tooltip_alerts")
                     ),
                     ft.IconButton(
                         icon=ft.Icons.INFO_OUTLINE,
                         icon_color=AppleTheme.BLUE,
                         on_click=self.toggle_details,
-                        tooltip="Toggle System Info"
+                        tooltip=self.t("tooltip_info")
                     )
                 ], spacing=5)
             ],
@@ -152,9 +206,9 @@ class DashboardUI:
 
         # Metric Cards
         debug_log("Creating metric cards...")
-        self.cpu_card = MetricCard("CPU Usage", ft.Icons.MEMORY, AppleTheme.BLUE, "%")
-        self.ram_card = MetricCard("Memory", ft.Icons.SD_STORAGE, AppleTheme.PURPLE, "%")
-        self.net_card = MetricCard("Network", ft.Icons.WIFI, AppleTheme.GREEN, " KB/s")
+        self.cpu_card = MetricCard(self.t("cpu_usage"), ft.Icons.MEMORY, AppleTheme.BLUE, "%")
+        self.ram_card = MetricCard(self.t("memory"), ft.Icons.SD_STORAGE, AppleTheme.PURPLE, "%")
+        self.net_card = MetricCard(self.t("network"), ft.Icons.WIFI, AppleTheme.GREEN, " KB/s")
         
         
         metric_cards = [self.cpu_card, self.ram_card, self.net_card]

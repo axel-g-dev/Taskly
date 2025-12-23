@@ -1,12 +1,12 @@
 """
 Configuration et thème de l'application Taskly.
 """
-
-# ==========================================
-# DEBUG FLAGS
-# ==========================================
-DEBUG = True  # Active les logs de debug
-VERBOSE = True  # Logs très détaillés
+from constants import (
+    DEBUG, VERBOSE, UPDATE_INTERVAL, HISTORY_SIZE,
+    ALERT_CPU_THRESHOLD, ALERT_RAM_THRESHOLD, ALERT_TEMP_THRESHOLD,
+    ENABLE_ANIMATIONS, ANIMATION_DURATION, HOVER_SCALE, SHADOW_BLUR,
+    DEFAULT_LANGUAGE
+)
 
 
 # ==========================================
@@ -38,27 +38,22 @@ class AppleTheme:
 
 
 # ==========================================
-# ALERT THRESHOLDS
+# ALERT THRESHOLDS (importés de constants)
 # ==========================================
 ALERT_THRESHOLDS = {
-    'cpu': 90,      # Alert if CPU > 90%
-    'ram': 85,      # Alert if RAM > 85%
-    'temp': 80,     # Alert if Temp > 80°C
+    'cpu': ALERT_CPU_THRESHOLD,
+    'ram': ALERT_RAM_THRESHOLD,
+    'temp': ALERT_TEMP_THRESHOLD,
 }
 
 
-# ==========================================
-# PERFORMANCE SETTINGS
-# ==========================================
-UPDATE_INTERVAL = 1.0       # seconds between updates
-HISTORY_SIZE = 30           # number of data points to keep
-CACHE_INTERVAL = 5          # seconds between disk/battery cache updates
+# Note: Les autres constantes sont maintenant dans constants.py
+# - UPDATE_INTERVAL
+# - HISTORY_SIZE
+# - CACHE_INTERVAL
+# - ENABLE_ANIMATIONS
+# - ANIMATION_DURATION
+# - HOVER_SCALE
+# - SHADOW_BLUR
+# - DEFAULT_LANGUAGE
 
-
-# ==========================================
-# UI ANIMATION SETTINGS
-# ==========================================
-ENABLE_ANIMATIONS = True    # Enable/disable animations
-ANIMATION_DURATION = 200    # Animation duration (ms) - short for performance
-HOVER_SCALE = 1.02          # Scale on hover (subtle)
-SHADOW_BLUR = 15            # Shadow blur radius

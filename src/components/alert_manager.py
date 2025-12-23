@@ -3,6 +3,7 @@ Gestionnaire d'alertes pour surveiller les seuils critiques.
 """
 import flet as ft
 from config import AppleTheme, ALERT_THRESHOLDS
+from constants import ALERT_COOLDOWN
 from utils import debug_log
 from datetime import datetime
 
@@ -17,7 +18,7 @@ class AlertManager:
         self.last_cpu_alert = 0
         self.last_ram_alert = 0
         self.last_temp_alert = 0
-        self.alert_cooldown = 30  # seconds between same type of alerts
+        self.alert_cooldown = ALERT_COOLDOWN  # Utilise la constante centralisée
     
     def check_metrics(self, metrics):
         """Vérifie les métriques et génère des alertes si nécessaire."""

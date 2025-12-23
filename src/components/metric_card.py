@@ -15,6 +15,7 @@ class MetricCard(ft.Container):
         self.accent_color = accent_color
         self.value_suffix = value_suffix
         self.is_hovered = False
+        self.icon = icon
         
         # Cache for optimization
         self.cached_main_val = None
@@ -24,6 +25,7 @@ class MetricCard(ft.Container):
         # Controls
         self.value_text = ft.Text("0", size=24, weight="bold", color=AppleTheme.TEXT_WHITE)
         self.sub_text = ft.Text("", size=12, color=AppleTheme.TEXT_GREY)
+        self.title_text = ft.Text(title, size=14, weight="w500", color=AppleTheme.TEXT_GREY)
         self.progress_bar = ft.ProgressBar(
             value=0,
             color=accent_color,
@@ -41,7 +43,7 @@ class MetricCard(ft.Container):
                     controls=[
                         ft.Row(controls=[
                             ft.Icon(icon, color=accent_color, size=18),
-                            ft.Text(title, size=14, weight="w500", color=AppleTheme.TEXT_GREY),
+                            self.title_text,
                         ]),
                     ]
                 ),
@@ -72,6 +74,11 @@ class MetricCard(ft.Container):
             # Si l'animation n'est pas disponible, on continue sans
             debug_log(f"Animation not available for {title}, continuing without", "WARNING")
             pass
+
+    def update_title(self, new_title):
+        """Met à jour le titre de la carte."""
+        self.title_text.value = new_title
+        self.title_text.update()
 
     def _handle_hover(self, e):
         self.is_hovered = e.data == "true"

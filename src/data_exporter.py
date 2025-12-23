@@ -6,12 +6,13 @@ import csv
 from datetime import datetime
 from pathlib import Path
 from utils import debug_log
+from constants import EXPORT_DIRECTORY
 
 
 class DataExporter:
     """Gère l'export des métriques système."""
     
-    def __init__(self, export_dir="./exports"):
+    def __init__(self, export_dir=EXPORT_DIRECTORY):
         self.export_dir = Path(export_dir)
         self.export_dir.mkdir(exist_ok=True)
         debug_log(f"DataExporter initialized, export directory: {self.export_dir}")

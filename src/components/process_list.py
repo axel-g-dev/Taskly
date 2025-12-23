@@ -13,13 +13,15 @@ class ProcessList(ft.Container):
         self.on_sort_change = on_sort_change
         self.current_sort = 'cpu'
         
+        # Store labels for updates
+        self.title_text = ft.Text("Top Processes", size=16, weight="w600", color=AppleTheme.TEXT_WHITE)
+        self.process_col = ft.DataColumn(ft.Text("Process", color=AppleTheme.TEXT_GREY, size=12))
+        self.pid_col = ft.DataColumn(ft.Text("PID", color=AppleTheme.TEXT_GREY, size=12), numeric=True)
+        self.cpu_col = ft.DataColumn(ft.Text("CPU%", color=AppleTheme.TEXT_GREY, size=12), numeric=True)
+        self.ram_col = ft.DataColumn(ft.Text("RAM%", color=AppleTheme.TEXT_GREY, size=12), numeric=True)
+        
         self.data_table = ft.DataTable(
-            columns=[
-                ft.DataColumn(ft.Text("Process", color=AppleTheme.TEXT_GREY, size=12)),
-                ft.DataColumn(ft.Text("PID", color=AppleTheme.TEXT_GREY, size=12), numeric=True),
-                ft.DataColumn(ft.Text("CPU%", color=AppleTheme.TEXT_GREY, size=12), numeric=True),
-                ft.DataColumn(ft.Text("RAM%", color=AppleTheme.TEXT_GREY, size=12), numeric=True),
-            ],
+            columns=[self.process_col, self.pid_col, self.cpu_col, self.ram_col],
             rows=[],
             column_spacing=10,
             heading_row_height=30,
@@ -48,7 +50,7 @@ class ProcessList(ft.Container):
                 ft.Row(
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     controls=[
-                        ft.Text("Top Processes", size=16, weight="w600", color=AppleTheme.TEXT_WHITE),
+                        self.title_text,
                         ft.Row([self.cpu_sort_btn, self.mem_sort_btn], spacing=5)
                     ]
                 ),
@@ -62,6 +64,15 @@ class ProcessList(ft.Container):
         self.border_radius = AppleTheme.BORDER_RADIUS
         self.padding = AppleTheme.PADDING
         self.expand = 1
+
+    def update_labels(self, t):
+        """Met à jour les labels avec les traductions."""
+        self.title_text.value = t("top_processes")
+        self.cpu_sort_btn.text = t("sort_by_cpu")
+        self.mem_sort_btn.text = t("sort_by_ram")
+        self.title_text.update()
+        self.cpu_sort_btn.update()
+        self.mem_sort_btn.update()
 
     def _change_sort(self, sort_type):
         self.current_sort = sort_type
