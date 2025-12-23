@@ -32,45 +32,7 @@ pip install -r requirements.txt
 
 ---
 
-## Configuration Spécifique par Plateforme
 
-### macOS - Surveillance de la Température
-
-
-```bash
-# Installation via Homebrew
-
-# Vérification
-# Devrait afficher quelque chose comme : 48.2°C
-```
-
-**Pourquoi c'est nécessaire ?**
-
-**Que se passe-t-il si je ne l'installe pas ?**
-- Taskly fonctionnera normalement
-- Toutes les autres fonctionnalités restent disponibles
-
-
-### Linux - Surveillance de la Température
-
-
-**Capteurs supportés** :
-
-**Vérifier les capteurs** :
-```bash
-# Vérifier les capteurs disponibles
-sensors
-
-# Ou avec Python
-```
-
-### Windows - Surveillance de la Température
-
-- Certains systèmes le supportent nativement via `psutil`
-- D'autres peuvent nécessiter des pilotes spécifiques
-- Taskly détecte automatiquement et s'adapte
-
----
 
 ## Lancement de Taskly
 

@@ -47,7 +47,8 @@ Le **Moniteur d'activité** d'Apple, bien que fonctionnel, souffre de plusieurs 
 
 - **CPU** : Pourcentage d'utilisation, nombre de cœurs, fréquence
 - **RAM** : Utilisation mémoire avec affichage utilisé/total
-- **Température** : CPU avec code couleur (vert/orange/rouge)
+- **Réseau** : Vitesses de téléchargement et d'envoi en temps réel
+- **Batterie** : Niveau, état de charge, temps restant
 - **Disque** : Utilisation de l'espace de stockage
 
 ### Visualisations
@@ -57,7 +58,7 @@ Le **Moniteur d'activité** d'Apple, bien que fonctionnel, souffre de plusieurs 
 - **Liste de processus** : Top 7 des processus les plus gourmands
 
 ### Système d'alertes
-- **Seuils configurables** : CPU (90%), RAM (85%) (80°C)
+- **Seuils configurables** : CPU (90%), RAM (85%)
 - **Niveaux d'alerte** : Warning et Critical
 - **Cooldown intelligent** : 30 secondes entre alertes similaires
 - **Panneau visuel** : Affichage avec icônes et horodatage
@@ -155,7 +156,6 @@ python src/main.py
 **Cartes métriques** :
 - **CPU** (Bleu) : Utilisation processeur 0-100%
 - **RAM** (Violet) : Utilisation mémoire
-- **Température** (Orange) : CPU (si disponible)
 - **Réseau** (Vert) : Vitesse de téléchargement
 
 **Graphiques** :
