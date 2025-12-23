@@ -36,37 +36,25 @@ pip install -r requirements.txt
 
 ### macOS - Surveillance de la Température
 
-Pour activer la surveillance de la température CPU sur macOS, vous devez installer `osx-cpu-temp` :
 
 ```bash
 # Installation via Homebrew
-brew install osx-cpu-temp
 
 # Vérification
-osx-cpu-temp
 # Devrait afficher quelque chose comme : 48.2°C
 ```
 
 **Pourquoi c'est nécessaire ?**
-- macOS ne donne pas accès aux capteurs de température via les API standard
-- `psutil` ne peut pas lire les températures sur macOS
-- `osx-cpu-temp` lit directement depuis le SMC (System Management Controller)
 
 **Que se passe-t-il si je ne l'installe pas ?**
 - Taskly fonctionnera normalement
-- La carte de température ne sera simplement pas affichée
 - Toutes les autres fonctionnalités restent disponibles
 
-**Note sur les températures** : `osx-cpu-temp` lit la température du package CPU (capteur TC0P), qui est plus stable que les températures individuelles des cœurs. C'est la valeur recommandée pour un monitoring général.
 
 ### Linux - Surveillance de la Température
 
-La surveillance de température fonctionne nativement sur la plupart des systèmes Linux.
 
 **Capteurs supportés** :
-- `coretemp` (CPU Intel)
-- `k10temp` (CPU AMD)
-- `cpu_thermal` (ARM/Raspberry Pi)
 
 **Vérifier les capteurs** :
 ```bash
@@ -74,12 +62,10 @@ La surveillance de température fonctionne nativement sur la plupart des systèm
 sensors
 
 # Ou avec Python
-python3 -c "import psutil; print(psutil.sensors_temperatures())"
 ```
 
 ### Windows - Surveillance de la Température
 
-Le support de température sur Windows varie selon le matériel :
 - Certains systèmes le supportent nativement via `psutil`
 - D'autres peuvent nécessiter des pilotes spécifiques
 - Taskly détecte automatiquement et s'adapte
@@ -116,13 +102,10 @@ source env/bin/activate
 pip install -r requirements.txt
 ```
 
-### La température ne s'affiche pas sur macOS
 
-**Cause** : `osx-cpu-temp` n'est pas installé
 
 **Solution** :
 ```bash
-brew install osx-cpu-temp
 ```
 
 Puis redémarrez Taskly.
@@ -178,8 +161,6 @@ Pour supprimer complètement Taskly :
 cd ..
 rm -rf Taskly
 
-# (Optionnel) Désinstaller osx-cpu-temp sur macOS
-brew uninstall osx-cpu-temp
 ```
 
 ---

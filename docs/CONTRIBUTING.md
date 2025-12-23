@@ -65,11 +65,7 @@ pip install -r requirements.txt
 
 Exemple :
 ```
-Ajoute surveillance de température
 
-- Création du composant TemperatureCard
-- Amélioration de data_manager avec collecte température
-- Ajout affichage température avec code couleur
 - Ferme #123
 ```
 
@@ -85,7 +81,6 @@ Taskly/
 ├── utils.py             # Utilitaires
 └── components/          # Composants UI
     ├── metric_card.py
-    ├── temperature_card.py
     ├── charts.py
     ├── process_list.py
     ├── system_info.py

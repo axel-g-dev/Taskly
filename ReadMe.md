@@ -17,20 +17,17 @@ Le **Moniteur d'activité** d'Apple, bien que fonctionnel, souffre de plusieurs 
 **Taskly a été créé pour résoudre ces problèmes** en offrant :
 
 ### Une Interface Moderne et Intuitive
-- **Cartes métriques colorées** : CPU (bleu), RAM (violet), Température (orange), Réseau (vert)
-- **Graphiques en temps réel** : Historique visuel sur 30 secondes pour CPU, RAM et Réseau
+- **Cartes métriques colorées** : CPU (bleu), RAM (violet) (orange), Réseau (vert)
 - **Design Apple-style** : Interface sombre élégante avec animations fluides
 - **Informations d'un coup d'œil** : Tout ce dont vous avez besoin sur un seul écran
 
 ### Des Fonctionnalités Avancées
-- **Système d'alertes** : Soyez notifié quand CPU > 90%, RAM > 85%, ou Température > 80°C
+- **Système d'alertes** : Soyez notifié quand CPU > 90%, RAM > 85%, ou > 80°C
 - **Export de données** : Sauvegardez vos métriques en JSON ou CSV pour analyse
-- **Surveillance de température** : Support multi-plateforme (Linux natif, macOS via osx-cpu-temp)
 - **Optimisations intelligentes** : Cache et mises à jour conditionnelles pour des performances optimales
 
 ### Une Expérience Utilisateur Supérieure
 - **Lancement rapide** : Application macOS native ou script de lancement
-- **Mise à jour fluide** : Rafraîchissement en temps réel sans ralentissement
 - **Architecture modulaire** : Code propre et facilement extensible
 - **Open Source** : Licence MIT, personnalisable à souhait
 
@@ -51,13 +48,11 @@ Taskly/
 │   ├── dashboard.py            # Interface principale
 │   ├── data_manager.py         # Collecte des métriques
 │   ├── data_exporter.py        # Export JSON/CSV
-│   ├── temperature_sensor.py   # Capteurs de température
 │   ├── config.py               # Configuration et thème
 │   ├── utils.py                # Fonctions utilitaires
 │   └── components/             # Composants UI
 │       ├── __init__.py
 │       ├── metric_card.py      # Cartes métriques
-│       ├── temperature_card.py # Carte température
 │       ├── charts.py           # Graphiques
 │       ├── process_list.py     # Liste de processus
 │       ├── system_info.py      # Panneau d'infos
@@ -115,8 +110,6 @@ source env/bin/activate
 # Installer les dépendances
 pip install -r requirements.txt
 
-# (macOS) Installer le support température
-brew install osx-cpu-temp
 
 # Lancer l'application
 python src/main.py
@@ -142,8 +135,7 @@ L'application est **prête à l'emploi** après clonage :
 
 ## Fonctionnalités
 
-- Surveillance CPU, RAM, Température, Réseau, Disque, Batterie
-- Graphiques historiques en temps réel (30 secondes)
+- Surveillance CPU, RAM, Réseau, Disque, Batterie
 - Système d'alertes configurables
 - Export de données (JSON/CSV)
 - Interface moderne et optimisée

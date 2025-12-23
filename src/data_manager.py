@@ -5,7 +5,6 @@ import psutil
 import time
 from collections import deque
 from utils import debug_log, verbose_log
-from temperature_sensor import TemperatureSensor
 
 
 class SystemDataManager:
@@ -19,7 +18,7 @@ class SystemDataManager:
         self.net_history = deque([0]*30, maxlen=30)
         self.net_down_history = deque([0]*30, maxlen=30)
         self.net_up_history = deque([0]*30, maxlen=30)
-        self.temp_history = deque([0]*30, maxlen=30)
+
         self.last_net_io = psutil.net_io_counters()
         self.last_time = time.time()
         self.boot_time = psutil.boot_time()
@@ -28,16 +27,6 @@ class SystemDataManager:
         self.cached_disk_info = None
         self.last_battery_check = 0
         self.cached_battery_info = None
-        
-        # Initialize temperature sensor (multi-platform)
-        self.temp_sensor = TemperatureSensor()
-        self.temp_available = self.temp_sensor.is_available()
-        
-        if self.temp_available:
-            sensor_info = self.temp_sensor.get_sensor_info()
-            debug_log(f"Temperature monitoring enabled: {sensor_info['sensor_type']} on {sensor_info['platform']}")
-        else:
-            debug_log("Temperature sensors not available on this platform", "WARNING")
         
         debug_log("SystemDataManager initialized successfully")
 
@@ -120,13 +109,6 @@ class SystemDataManager:
             # 6. System uptime
             uptime_seconds = time.time() - self.boot_time
             
-            # 7. Temperature (multi-platform support)
-            cpu_temp = None
-            if self.temp_available:
-                cpu_temp = self.temp_sensor.get_temperature()
-            
-            # Add to temperature history
-            self.temp_history.append(cpu_temp if cpu_temp else 0)
             
             metrics = {
                 "cpu_percent": cpu_pct,
@@ -134,8 +116,6 @@ class SystemDataManager:
                 "cpu_count_logical": cpu_count_logical,
                 "cpu_freq": cpu_freq.current if cpu_freq else 0,
                 "cpu_history": list(self.cpu_history),
-                "cpu_temp": cpu_temp,
-                "temp_history": list(self.temp_history),
                 
                 "ram_percent": mem.percent,
                 "ram_used_gb": mem.used / (1024**3),
@@ -173,7 +153,7 @@ class SystemDataManager:
             # Retourne des valeurs par défaut en cas d'erreur
             return {
                 "cpu_percent": 0, "cpu_count": 0, "cpu_count_logical": 0,
-                "cpu_freq": 0, "cpu_history": [0]*30, "cpu_temp": None, "temp_history": [0]*30,
+                "cpu_freq": 0, "cpu_history": [0]*30,
                 "ram_percent": 0, "ram_used_gb": 0, "ram_total_gb": 0,
                 "ram_available_gb": 0, "ram_history": [0]*30,
                 "disk_percent": 0, "disk_used_gb": 0, "disk_total_gb": 0,

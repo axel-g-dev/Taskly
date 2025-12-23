@@ -32,7 +32,6 @@ class DataExporter:
                         'percent': metrics['cpu_percent'],
                         'count': metrics['cpu_count'],
                         'freq_mhz': metrics['cpu_freq'],
-                        'temp_celsius': metrics['cpu_temp'],
                         'history': metrics['cpu_history']
                     },
                     'memory': {
@@ -92,12 +91,11 @@ class DataExporter:
                 
                 # CPU
                 writer.writerow(['CPU Metrics'])
-                writer.writerow(['Usage %', 'Cores', 'Frequency MHz', 'Temperature °C'])
+                writer.writerow(['Usage %', 'Cores', 'Frequency MHz'])
                 writer.writerow([
                     f"{metrics['cpu_percent']:.1f}",
                     metrics['cpu_count'],
-                    f"{metrics['cpu_freq']:.0f}",
-                    f"{metrics['cpu_temp']:.1f}" if metrics['cpu_temp'] else 'N/A'
+                    f"{metrics['cpu_freq']:.0f}"
                 ])
                 writer.writerow([])
                 

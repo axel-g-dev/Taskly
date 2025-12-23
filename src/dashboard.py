@@ -11,7 +11,7 @@ from utils import debug_log, verbose_log, with_opacity
 from data_manager import SystemDataManager
 from data_exporter import DataExporter
 from components import (
-    MetricCard, TemperatureCard, CPULineChart, RAMLineChart, NetworkLineChart,
+    MetricCard, CPULineChart, RAMLineChart, NetworkLineChart,
     ProcessList, SystemInfoPanel, AlertManager, AlertPanel
 )
 
@@ -156,18 +156,8 @@ class DashboardUI:
         self.ram_card = MetricCard("Memory", ft.Icons.SD_STORAGE, AppleTheme.PURPLE, "%")
         self.net_card = MetricCard("Network", ft.Icons.WIFI, AppleTheme.GREEN, " KB/s")
         
-        # Only create temperature card if sensors are available
-        metric_cards = [self.cpu_card, self.ram_card]
         
-        if self.data_manager.temp_available:
-            self.temp_card = TemperatureCard("Temperature", ft.Icons.THERMOSTAT)
-            metric_cards.append(self.temp_card)
-            debug_log("Temperature card added (sensors available)")
-        else:
-            self.temp_card = None
-            debug_log("Temperature card skipped (sensors not available)")
-        
-        metric_cards.append(self.net_card)
+        metric_cards = [self.cpu_card, self.ram_card, self.net_card]
 
         top_row = ft.Row(
             controls=metric_cards,
@@ -257,9 +247,6 @@ class DashboardUI:
                     metrics['ram_percent'] / 100
                 )
                 
-                # Only update temperature card if it exists
-                if self.temp_card is not None:
-                    self.temp_card.update_data(metrics['cpu_temp'])
                 
                 total_speed = metrics['net_down'] + metrics['net_up']
                 max_ref_speed = 5000

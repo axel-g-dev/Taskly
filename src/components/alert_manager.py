@@ -48,18 +48,6 @@ class AlertManager:
                 })
                 self.last_ram_alert = current_time
         
-        # Check Temperature
-        if metrics['cpu_temp'] and metrics['cpu_temp'] > ALERT_THRESHOLDS['temp']:
-            if current_time - self.last_temp_alert > self.alert_cooldown:
-                new_alerts.append({
-                    'type': 'temp',
-                    'level': 'warning' if metrics['cpu_temp'] < 85 else 'critical',
-                    'message': f"CPU temperature high: {metrics['cpu_temp']:.0f}°C",
-                    'timestamp': datetime.now(),
-                    'value': metrics['cpu_temp']
-                })
-                self.last_temp_alert = current_time
-        
         # Add new alerts
         for alert in new_alerts:
             self.alerts.insert(0, alert)

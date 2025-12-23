@@ -20,20 +20,17 @@ Le **Moniteur d'activité** d'Apple, bien que fonctionnel, souffre de plusieurs 
 **Taskly a été créé pour résoudre ces problèmes** en offrant :
 
 ### Une Interface Moderne et Intuitive
-- **Cartes métriques colorées** : CPU (bleu), RAM (violet), Température (orange), Réseau (vert)
-- **Graphiques en temps réel** : Historique visuel sur 30 secondes pour CPU, RAM et Réseau
+- **Cartes métriques colorées** : CPU (bleu), RAM (violet) (orange), Réseau (vert)
 - **Design Apple-style** : Interface sombre élégante avec animations fluides
 - **Informations d'un coup d'œil** : Tout ce dont vous avez besoin sur un seul écran
 
 ### Des Fonctionnalités Avancées
-- **Système d'alertes** : Soyez notifié quand CPU > 90%, RAM > 85%, ou Température > 80°C
+- **Système d'alertes** : Soyez notifié quand CPU > 90%, RAM > 85%, ou > 80°C
 - **Export de données** : Sauvegardez vos métriques en JSON ou CSV pour analyse
-- **Surveillance de température** : Support multi-plateforme (Linux natif, macOS via osx-cpu-temp)
 - **Optimisations intelligentes** : Cache et mises à jour conditionnelles pour des performances optimales
 
 ### Une Expérience Utilisateur Supérieure
 - **Lancement rapide** : Application macOS native ou script de lancement
-- **Mise à jour fluide** : Rafraîchissement en temps réel sans ralentissement
 - **Architecture modulaire** : Code propre et facilement extensible
 - **Open Source** : Licence MIT, personnalisable à souhait
 
@@ -43,18 +40,14 @@ Le **Moniteur d'activité** d'Apple, bien que fonctionnel, souffre de plusieurs 
 
 ![Screenshot Taskly](../assets/screenshot_taskly.png)
 
-*Interface principale de Taskly avec cartes métriques, graphiques en temps réel et liste de processus*
 
 ---
 
 ## Fonctionnalités
 
-### Surveillance en temps réel
 - **CPU** : Pourcentage d'utilisation, nombre de cœurs, fréquence
 - **RAM** : Utilisation mémoire avec affichage utilisé/total
-- **Température** : Température CPU avec code couleur (vert/orange/rouge)
-- **Réseau** : Vitesses de téléchargement et d'envoi en temps réel
-- **Batterie** : Niveau, état de charge, temps restant
+- **Température** : CPU avec code couleur (vert/orange/rouge)
 - **Disque** : Utilisation de l'espace de stockage
 
 ### Visualisations
@@ -64,7 +57,7 @@ Le **Moniteur d'activité** d'Apple, bien que fonctionnel, souffre de plusieurs 
 - **Liste de processus** : Top 7 des processus les plus gourmands
 
 ### Système d'alertes
-- **Seuils configurables** : CPU (90%), RAM (85%), Température (80°C)
+- **Seuils configurables** : CPU (90%), RAM (85%) (80°C)
 - **Niveaux d'alerte** : Warning et Critical
 - **Cooldown intelligent** : 30 secondes entre alertes similaires
 - **Panneau visuel** : Affichage avec icônes et horodatage
@@ -114,19 +107,14 @@ env\Scripts\activate  # Windows
 pip install -r requirements.txt
 ```
 
-### Surveillance de température sur macOS (optionnel)
 
-Pour activer la surveillance de température CPU sur macOS :
 
 ```bash
 # Installation via Homebrew
-brew install osx-cpu-temp
 
 # Vérification
-osx-cpu-temp
 ```
 
-**Note** : La surveillance de température fonctionne nativement sur Linux. Sur macOS, elle nécessite `osx-cpu-temp`. Sur Windows, le support varie selon le matériel.
 
 ### Lanceur bureau (macOS)
 
@@ -160,7 +148,6 @@ python src/main.py
 ### Interface utilisateur
 
 **Boutons d'en-tête** :
-- Horloge : Heure actuelle en temps réel
 - Export : Exporter les données (JSON + CSV)
 - Alertes : Afficher/masquer le panneau d'alertes
 - Info : Afficher/masquer les informations système détaillées
@@ -168,7 +155,7 @@ python src/main.py
 **Cartes métriques** :
 - **CPU** (Bleu) : Utilisation processeur 0-100%
 - **RAM** (Violet) : Utilisation mémoire
-- **Température** (Orange) : Température CPU (si disponible)
+- **Température** (Orange) : CPU (si disponible)
 - **Réseau** (Vert) : Vitesse de téléchargement
 
 **Graphiques** :
@@ -179,7 +166,6 @@ python src/main.py
 **Liste de processus** :
 - Tri par CPU ou RAM
 - Affiche les 7 processus les plus gourmands
-- Mise à jour en temps réel
 
 ---
 
@@ -192,12 +178,10 @@ Taskly/
 │   ├── dashboard.py            # Interface principale
 │   ├── data_manager.py         # Collecte des métriques
 │   ├── data_exporter.py        # Export JSON/CSV
-│   ├── temperature_sensor.py   # Capteurs de température
 │   ├── config.py               # Configuration et thème
 │   ├── utils.py                # Fonctions utilitaires
 │   └── components/             # Composants UI
 │       ├── metric_card.py      # Cartes métriques
-│       ├── temperature_card.py # Carte température
 │       ├── charts.py           # Graphiques
 │       ├── process_list.py     # Liste de processus
 │       ├── system_info.py      # Panneau d'infos
@@ -225,7 +209,6 @@ Modifiez `config.py` pour ajuster les seuils :
 ALERT_THRESHOLDS = {
     'cpu': 90,      # Alerte si CPU > 90%
     'ram': 85,      # Alerte si RAM > 85%
-    'temp': 80,     # Alerte si Temp > 80°C
 }
 ```
 
@@ -272,21 +255,14 @@ cpu_pct = psutil.cpu_percent()  # Déjà normalisé
 - **Cache disque/batterie** : Mis à jour toutes les 5s au lieu de 1s
 - **Mises à jour conditionnelles** : UI mise à jour uniquement si changement > 0.5%
 
-### Compatibilité température
 
-La surveillance de température varie selon la plateforme :
-- **Linux** : Support complet (coretemp, k10temp, cpu_thermal)
-- **macOS** : Support via `osx-cpu-temp` (installation requise)
 - **Windows** : Support variable selon le matériel
 
 **Configuration macOS** :
 ```bash
-brew install osx-cpu-temp
 ```
 
-L'application détecte automatiquement les capteurs disponibles et adapte l'interface. Si aucun capteur n'est disponible, la carte température est masquée.
 
-**Note sur les températures** : `osx-cpu-temp` lit la température du package CPU (capteur TC0P), qui est plus stable que les températures individuelles des cœurs. Cette valeur représente mieux la charge globale du système.
 
 ---
 
@@ -302,7 +278,6 @@ L'application détecte automatiquement les capteurs disponibles et adapte l'inte
       "percent": 75.8,
       "count": 2,
       "freq_mhz": 2400,
-      "temp_celsius": 48.2,
       "history": [...]
     },
     "memory": {...},
@@ -317,7 +292,6 @@ L'application détecte automatiquement les capteurs disponibles et adapte l'inte
 Timestamp,2025-12-22T15:03:44
 
 CPU Metrics
-Usage %,Cores,Frequency MHz,Temperature °C
 75.8,2,2400,48.2
 
 Memory Metrics
@@ -340,12 +314,10 @@ source env/bin/activate
 pip install -r requirements.txt
 ```
 
-### Température non disponible
+### non disponible
 
-C'est normal sur macOS sans `osx-cpu-temp`. Pour l'activer :
 
 ```bash
-brew install osx-cpu-temp
 ```
 
 Puis redémarrez Taskly.
