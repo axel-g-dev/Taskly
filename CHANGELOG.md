@@ -7,6 +7,67 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ---
 
+## [1.1.0] - 2025-12-23
+
+### ✨ Ajouté
+
+**Internationalisation**
+- Support complet Français/Anglais
+- Bouton de changement de langue (🌐) dans l'en-tête
+- Persistance de la préférence utilisateur dans `~/.taskly_config.json`
+- 100% des textes de l'interface traduits
+- Système de traduction modulaire (`i18n.py`)
+
+**Architecture**
+- Nouveau fichier `constants.py` pour centraliser toutes les constantes
+- Configuration centralisée (intervalles, seuils, dimensions UI)
+- Meilleure organisation du code
+
+### 🐛 Corrigé
+
+**Bug CPU >100%**
+- Correction de l'affichage des processus dans "Top Processes"
+- Normalisation du pourcentage CPU par nombre de cœurs
+- Les processus affichent maintenant correctement 0-100% CPU
+- Fix de la formule mathématique de normalisation
+
+### ♻️ Refactorisé
+
+**data_manager.py**
+- Refactorisation complète en méthodes modulaires :
+  - `_get_cpu_metrics()` - Collecte CPU
+  - `_get_memory_metrics()` - Collecte RAM
+  - `_get_disk_metrics()` - Collecte Disque (avec cache)
+  - `_get_network_metrics()` - Collecte Réseau
+  - `_get_battery_metrics()` - Collecte Batterie (avec cache)
+  - `_get_system_metrics()` - Uptime et infos système
+- Gestion d'erreurs individualisée par métrique
+- Code plus lisible et maintenable
+
+**Composants UI**
+- Tous les composants supportent maintenant les mises à jour dynamiques de langue :
+  - `metric_card.py` : Méthode `update_title()`
+  - `process_list.py` : Méthode `update_labels()`
+  - `system_info.py` : Méthode `update_labels()`
+  - `charts.py` : Méthode `update_title()`
+
+**Imports optimisés**
+- `config.py` importe maintenant de `constants.py`
+- `dashboard.py` utilise les constantes pour les dimensions de fenêtre
+- `data_exporter.py` utilise `EXPORT_DIRECTORY`
+- `alert_manager.py` utilise `ALERT_COOLDOWN`
+- Élimination des duplications de code
+
+### 📊 Statistiques
+
+- **Fichiers créés** : 2 (`i18n.py`, `constants.py`)
+- **Fichiers modifiés** : 11
+- **Lignes ajoutées** : 624
+- **Lignes supprimées** : 149
+- **Langues supportées** : 2 (FR, EN)
+
+---
+
 ## [1.0.0] - 2025-12-23
 
 ### 🎉 Version Initiale
