@@ -53,5 +53,5 @@ CONFIG_FILE_PATH = "~/.taskly_config.json"  # Fichier de configuration utilisate
 # ==========================================
 # DEBUG
 # ==========================================
-DEBUG = True                    # Active les logs de debug
-VERBOSE = True                  # Logs très détaillés
+DEBUG = False                   # Active les logs de debug
+VERBOSE = False                 # Logs très détaillés
