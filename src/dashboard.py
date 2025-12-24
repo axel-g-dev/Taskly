@@ -54,10 +54,9 @@ class DashboardUI:
         self.page.padding = 30
         self.page.theme_mode = ft.ThemeMode.DARK
         
-        self.page.fonts = {
-            "SF Pro": "https://raw.githubusercontent.com/google/fonts/main/ofl/sfpro/SFPro-Regular.ttf"
-        }
-        self.page.theme = ft.Theme(font_family="SF Pro")
+        # ✅ SÉCURITÉ : Utiliser police système macOS au lieu de chargement internet
+        # Pas de connexion réseau externe requise
+        self.page.theme = ft.Theme(font_family="SF Pro Display")
         
         self.page.window.width = WINDOW_WIDTH
         self.page.window.height = WINDOW_HEIGHT

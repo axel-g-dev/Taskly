@@ -120,24 +120,61 @@ class TranslationManager:
     """Gestionnaire de traductions avec persistance."""
     
     CONFIG_FILE = Path(CONFIG_FILE_PATH).expanduser()
+    ALLOWED_LANGUAGES = ['fr', 'en']  # ✅ SÉCURITÉ : Whitelist des langues autorisées
     
     def __init__(self, default_language="fr"):
         """Initialise le gestionnaire de traductions."""
         self.current_language = self._load_language() or default_language
         debug_log(f"Language initialized: {self.current_language}")
     
+    def _validate_config(self, config):
+        """
+        ✅ SÉCURITÉ : Validation stricte de la configuration.
+        
+        Args:
+            config: Configuration chargée depuis JSON
+            
+        Returns:
+            bool: True si valide, False sinon
+        """
+        # Vérifier que c'est un dictionnaire
+        if not isinstance(config, dict):
+            debug_log("Config must be a dict", "WARNING")
+            return False
+        
+        # Vérifier que la langue est dans la whitelist
+        lang = config.get('language')
+        if lang and lang not in self.ALLOWED_LANGUAGES:
+            debug_log(f"Invalid language '{lang}', not in whitelist {self.ALLOWED_LANGUAGES}", "WARNING")
+            return False
+        
+        return True
+    
     def _load_language(self):
-        """Charge la langue sauvegardée depuis le fichier de config."""
+        """Charge la langue sauvegardée depuis le fichier de config avec validation stricte."""
         try:
             if self.CONFIG_FILE.exists():
                 with open(self.CONFIG_FILE, 'r', encoding='utf-8') as f:
                     config = json.load(f)
+                    
+                    # ✅ SÉCURITÉ : Valider avant utilisation
+                    if not self._validate_config(config):
+                        debug_log("Invalid config file, removing it", "WARNING")
+                        self.CONFIG_FILE.unlink(missing_ok=True)
+                        return None
+                    
                     lang = config.get('language')
                     debug_log(f"Loaded language from config: {lang}")
                     return lang
+                    
+        except json.JSONDecodeError as e:
+            # ✅ SÉCURITÉ : Fichier JSON corrompu → supprimer
+            debug_log(f"Corrupted JSON config: {e}", "ERROR")
+            self.CONFIG_FILE.unlink(missing_ok=True)
+            return None
         except Exception as e:
             debug_log(f"Error loading language config: {e}", "WARNING")
-        return None
+            return None
     
     def _save_language(self):
         """Sauvegarde la langue actuelle dans le fichier de config."""
@@ -149,6 +186,11 @@ class TranslationManager:
             if self.CONFIG_FILE.exists():
                 with open(self.CONFIG_FILE, 'r', encoding='utf-8') as f:
                     config = json.load(f)
+            
+            # ✅ SÉCURITÉ : Valider avant sauvegarde
+            if self.current_language not in self.ALLOWED_LANGUAGES:
+                debug_log(f"Cannot save invalid language: {self.current_language}", "ERROR")
+                return
             
             config['language'] = self.current_language
             
