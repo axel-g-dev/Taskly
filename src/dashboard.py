@@ -305,23 +305,33 @@ class DashboardUI:
         debug_log("Monitoring thread started")
 
     def _update_loop(self):
-        """Boucle principale de mise à jour."""
-        debug_log("Update loop started")
+        """Boucle principale de mise à jour avec gestion d'erreurs robuste."""
+        from utils import logger
+        import psutil
+        
+        logger.info("Update loop started")
         iteration = 0
+        consecutive_errors = 0
+        MAX_CONSECUTIVE_ERRORS = 10
+        
         while self.running:
             try:
                 iteration += 1
-                verbose_log(f"--- Update iteration {iteration} ---")
+                logger.debug(f"--- Update iteration {iteration} ---")
                 
+                # Collecte des données
                 metrics = self.data_manager.get_metrics()
                 top_procs = self.data_manager.get_top_processes(sort_by=self.current_sort)
 
+                # =============================================
+                # BATCH UPDATES - Préparer toutes les données
+                # =============================================
+                
                 # Mise à jour horloge
                 self.clock_text.value = datetime.now().strftime("%H:%M:%S")
-                self.clock_text.update()
-
-                # Mise à jour des cartes
-                verbose_log("Updating metric cards...")
+                
+                # Mise à jour des cartes (sans auto-update)
+                logger.debug("Updating metric cards...")
                 self.cpu_card.update_data(
                     f"{metrics['cpu_percent']:.1f}",
                     f"{metrics['cpu_count']} cores",
@@ -334,7 +344,6 @@ class DashboardUI:
                     metrics['ram_percent'] / 100
                 )
                 
-                
                 total_speed = metrics['net_down'] + metrics['net_up']
                 max_ref_speed = 5000
                 self.net_card.update_data(
@@ -344,7 +353,7 @@ class DashboardUI:
                 )
 
                 # Mise à jour des graphiques
-                verbose_log("Updating charts...")
+                logger.debug("Updating charts...")
                 self.cpu_chart.update_chart(metrics['cpu_history'])
                 self.ram_chart.update_chart(metrics['ram_history'])
                 self.net_chart.update_chart(metrics['net_down_history'], metrics['net_up_history'])
@@ -354,7 +363,7 @@ class DashboardUI:
                 
                 # Mise à jour info panel si visible
                 if self.show_details:
-                    verbose_log("Updating info panel...")
+                    logger.debug("Updating info panel...")
                     self.info_panel.update_info(metrics)
                 
                 # Vérifier les alertes
@@ -362,11 +371,37 @@ class DashboardUI:
                 if new_alerts and self.show_alerts:
                     self.alert_panel.update_alerts(self.alert_manager.get_recent_alerts())
 
-                verbose_log(f"Update iteration {iteration} complete")
+                # =============================================
+                # BATCH UPDATE - Une seule mise à jour globale
+                # =============================================
+                self.page.update()
+
+                logger.debug(f"Update iteration {iteration} complete")
+                consecutive_errors = 0  # Reset on success
+                time.sleep(1)
+                
+            except psutil.Error as e:
+                # Erreur psutil récupérable (processus terminé, etc.)
+                consecutive_errors += 1
+                logger.warning(f"Recoverable psutil error in iteration {iteration}: {e}")
+                
+                if consecutive_errors >= MAX_CONSECUTIVE_ERRORS:
+                    logger.critical(f"Too many consecutive errors ({consecutive_errors}). Stopping.")
+                    self.running = False
+                    raise
+                
                 time.sleep(1)
                 
             except Exception as e:
-                debug_log(f"ERROR in update loop (iteration {iteration}): {e}", "ERROR")
-                import traceback
-                traceback.print_exc()
+                # Erreur critique inattendue
+                consecutive_errors += 1
+                logger.error(f"Critical error in update loop (iteration {iteration}): {e}", exc_info=True)
+                
+                if consecutive_errors >= MAX_CONSECUTIVE_ERRORS:
+                    logger.critical(f"Too many consecutive errors ({consecutive_errors}). Stopping.")
+                    self.running = False
+                    raise
+                
                 time.sleep(1)
+        
+        logger.info("Update loop stopped")

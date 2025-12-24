@@ -1,24 +1,68 @@
 """
 Fonctions utilitaires pour Taskly.
 """
+import logging
 from datetime import datetime
 from config import DEBUG, VERBOSE
 
 
 # ==========================================
-# LOGGING FUNCTIONS
+# LOGGING SYSTEM
+# ==========================================
+def setup_logger(name="taskly"):
+    """Configure et retourne un logger optimisé."""
+    logger = logging.getLogger(name)
+    
+    # Configurer le niveau en fonction de DEBUG/VERBOSE
+    if VERBOSE:
+        logger.setLevel(logging.DEBUG)
+    elif DEBUG:
+        logger.setLevel(logging.INFO)
+    else:
+        logger.setLevel(logging.WARNING)
+    
+    # Éviter les handlers dupliqués
+    if not logger.handlers:
+        # Handler console avec format personnalisé
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            '[%(asctime)s.%(msecs)03d] [%(levelname)s] %(message)s',
+            datefmt='%H:%M:%S'
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    
+    return logger
+
+
+# Logger global
+logger = setup_logger()
+
+
+# ==========================================
+# BACKWARD COMPATIBILITY
 # ==========================================
 def debug_log(message, level="INFO"):
-    """Affiche un message de debug avec timestamp."""
-    if DEBUG:
-        timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
-        print(f"[{timestamp}] [{level}] {message}")
+    """
+    Fonction de compatibilité pour l'ancien système.
+    DEPRECATED: Utiliser logger.info(), logger.debug(), etc.
+    """
+    level_map = {
+        "INFO": logging.INFO,
+        "DEBUG": logging.DEBUG,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "VERBOSE": logging.DEBUG
+    }
+    logger.log(level_map.get(level, logging.INFO), message)
 
 
 def verbose_log(message):
-    """Affiche un message verbose uniquement si VERBOSE=True."""
-    if VERBOSE:
-        debug_log(message, "VERBOSE")
+    """
+    Fonction de compatibilité.
+    DEPRECATED: Utiliser logger.debug()
+    """
+    logger.debug(message)
 
 
 # ==========================================
