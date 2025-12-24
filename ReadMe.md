@@ -13,6 +13,17 @@
   ![GitHub stars](https://img.shields.io/github/stars/axel-g-dev/Taskly?style=social)
 </div>
 
+---
+
+## 🎬 Démo
+
+<div align="center">
+  <img src="assets/taskly_demo.gif" alt="Taskly Demo" width="100%">
+  <p><em>Interface moderne • Changement de langue instantané • Graphiques en temps réel</em></p>
+</div>
+
+---
+
 ## Pourquoi Taskly ?
 
 Le **Moniteur d'activité** d'Apple, bien que fonctionnel, souffre de plusieurs limitations :
