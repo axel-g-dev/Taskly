@@ -100,7 +100,16 @@ archive_*.py
 
 # Configuration utilisateur
 .taskly_config.json
-~/.taskly_config.json
+~/Library/Application Support/Taskly/
+
+# Logs Python (logging module)
+*.log.*
+logs/
+
+# Profiling
+*.prof
+*.lprof
+*.pstats
 
 # Ne pas ignorer le lanceur
 !scripts/launch_taskly.command
