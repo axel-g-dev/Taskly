@@ -48,7 +48,7 @@ EXPORT_DIRECTORY = "exports"    # Dossier pour les exports
 # INTERNATIONALIZATION
 # ==========================================
 DEFAULT_LANGUAGE = "fr"         # Langue par défaut (fr/en)
-CONFIG_FILE_PATH = "~/.taskly_config.json"  # Fichier de configuration utilisateur
+CONFIG_FILE_PATH = "~/Library/Application Support/Taskly/config.json"  # Fichier de configuration utilisateur
 
 # ==========================================
 # DEBUG

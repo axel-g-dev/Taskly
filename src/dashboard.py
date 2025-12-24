@@ -135,15 +135,48 @@ class DashboardUI:
     
     def export_data(self, e):
         """Exporte les données actuelles."""
-        debug_log("Exporting data...")
         try:
             metrics = self.data_manager.get_metrics()
             json_file = self.data_exporter.export_to_json(metrics)
             csv_file = self.data_exporter.export_to_csv(metrics)
-            debug_log(f"Data exported: JSON={json_file}, CSV={csv_file}")
-            # TODO: Show success notification to user
-        except Exception as e:
-            debug_log(f"Export failed: {e}", "ERROR")
+            
+            # Afficher une notification de succès
+            if json_file and csv_file:
+                snackbar = ft.SnackBar(
+                    content=ft.Row([
+                        ft.Icon(ft.Icons.CHECK_CIRCLE, color=AppleTheme.GREEN),
+                        ft.Text(
+                            self.t("export_success") + f" (JSON + CSV)",
+                            color=AppleTheme.TEXT_WHITE
+                        )
+                    ]),
+                    bgcolor=AppleTheme.CARD_COLOR,
+                    duration=3000
+                )
+                self.page.overlay.append(snackbar)
+                snackbar.open = True
+                self.page.update()
+                print(f"✅ Export réussi:\n  JSON: {json_file}\n  CSV: {csv_file}")
+            else:
+                raise Exception("Export failed")
+                
+        except Exception as ex:
+            # Afficher une notification d'erreur
+            snackbar = ft.SnackBar(
+                content=ft.Row([
+                    ft.Icon(ft.Icons.ERROR, color=AppleTheme.RED),
+                    ft.Text(
+                        self.t("export_error"),
+                        color=AppleTheme.TEXT_WHITE
+                    )
+                ]),
+                bgcolor=AppleTheme.CARD_COLOR,
+                duration=3000
+            )
+            self.page.overlay.append(snackbar)
+            snackbar.open = True
+            self.page.update()
+            print(f"❌ Erreur d'export: {ex}")
 
     def build_ui(self):
         """Construit l'interface utilisateur."""

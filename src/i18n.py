@@ -142,6 +142,9 @@ class TranslationManager:
     def _save_language(self):
         """Sauvegarde la langue actuelle dans le fichier de config."""
         try:
+            # Créer le dossier parent si nécessaire
+            self.CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
+            
             config = {}
             if self.CONFIG_FILE.exists():
                 with open(self.CONFIG_FILE, 'r', encoding='utf-8') as f:
