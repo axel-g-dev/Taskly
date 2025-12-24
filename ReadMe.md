@@ -4,7 +4,7 @@
   <img src="assets/icon.png" alt="Logo Taskly" width="128" height="128">
   <p><em>Un moniteur système moderne avec interface Apple-style</em></p>
   
-  ![Version](https://img.shields.io/badge/version-1.1.0-blue)
+  ![Version](https://img.shields.io/badge/version-1.2.0-blue)
   ![Python](https://img.shields.io/badge/Python-3.8+-3776AB?logo=python&logoColor=white)
   ![Flet](https://img.shields.io/badge/Flet-0.28+-5C2D91?logo=flutter&logoColor=white)
   ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey)
