@@ -11,7 +11,7 @@ long_description = (this_directory / "README.md").read_text(encoding='utf-8')
 
 setup(
     name="taskly",
-    version="1.1.0",
+    version="1.2.0",
     author="Axel G",
     author_email="",  # À remplir si souhaité
     description="Un moniteur système moderne avec interface Apple-style",
